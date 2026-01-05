@@ -2,40 +2,29 @@ name: Deploy GridDB
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
-
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        
+
       - name: Build
         run: |
-          mkdir -p _site
-          cp griddb.mjs _site/
-          cp griddb_modern.html _site/index.html
-          cp webgpu_viz.mjs _site/
-          cp -r gridwise _site/
-          cp dbImage.png _site/ || true
-          
+          echo " GridDB files validated"
+          ls -lh griddb.mjs griddb_modern.html webgpu_viz.mjs
+          ls -lh gridwise/*.mjs | head -5
+
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/upload-artifact@v4
+        with:
+          name: griddb-build
+          path: |
+            griddb.mjs
+            griddb_modern.html
+            webgpu_viz.mjs
+            gridwise/
+            dbImage.png
