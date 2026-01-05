@@ -33,6 +33,10 @@ jobs:
           cp -r gridwise _site/
           cp dbImage.png _site/ 2>/dev/null || true
           echo " Built for GitHub Pages"
+          echo " Files in _site:"
+          ls -lah _site/
+          echo "index.html exists:"
+          test -f _site/index.html && echo "YES" || echo "NO"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
