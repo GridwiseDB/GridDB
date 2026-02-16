@@ -461,9 +461,17 @@
                 <div id="import-panel" class="panel-content p-4 pt-0">
                     <div id="dropzone" class="border-2 border-dashed border-white/10 rounded-xl h-32 flex flex-col items-center justify-center hover:border-[#34B27B]/50 transition-all cursor-pointer group">
                         <span class="text-2xl mb-2">📁</span>
-                        <p class="text-[10px] text-white/40 group-hover:text-[#34B27B] transition-colors uppercase font-bold">Drop CSV or JSON</p>
-                        <input type="file" id="fileInput" accept=".csv,.json" style="display: none;">
+                        <p class="text-[10px] text-white/40 group-hover:text-[#34B27B] transition-colors uppercase font-bold">Drop CSV, JSON, or Excel files</p>
+                        <p class="text-[9px] text-white/20 mt-1">Click to browse or drag & drop here</p>
+                        <input type="file" id="fileInput" accept=".csv,.json,.xlsx,.xls" multiple style="display: none;">
                     </div>
+                    
+                    <!-- Add Another Table Button -->
+                    <button id="uploadAnotherBtn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()" 
+                            class="w-full mt-3 px-4 py-2.5 bg-[#34B27B] hover:bg-[#2d9a68] text-black text-xs font-bold uppercase rounded-lg transition-all">
+                        ➕ Upload Another Table
+                    </button>
+                    
                     <div id="loadProgress" class="mt-3 hidden">
                         <div class="bg-white/5 rounded-full h-3 overflow-hidden mb-2">
                             <div id="loadProgressBar" class="bg-gradient-to-r from-[#34B27B] to-[#2d9a68] h-full transition-all duration-300 flex items-center justify-end" style="width: 0%">
@@ -485,6 +493,12 @@
                     <span class="collapse-btn text-white/40 text-sm">▼</span>
                 </div>
                 <div id="stats-panel" class="panel-content p-4 pt-0 space-y-3">
+                    <div>
+                        <span class="text-[9px] text-white/30 uppercase block">Loaded Tables:</span>
+                        <div id="loaded-tables-list" class="mt-2 space-y-1">
+                            <span class="text-xs text-white/30">No tables loaded</span>
+                        </div>
+                    </div>
                     <div>
                         <span class="text-[9px] text-white/30 uppercase block">Total Rows:</span>
                         <span class="text-xl font-bold text-[#34B27B] mono" id="total-rows">0</span>
@@ -686,9 +700,9 @@
         <section class="flex-1 flex flex-col gap-4 overflow-hidden px-4" id="centerPanel">
             
             <!-- SQL Query Editor and Create Table Row -->
-            <div class="flex gap-0 h-96" style="min-height: 200px;">
+            <div class="flex gap-0 h-96" id="queryRow" style="min-height: 200px; transition: all 0.3s ease;">
                 <!-- SQL Query Editor -->
-                <div class="flex-1 bg-[#11181C] rounded-xl border border-white/5 glow-border flex flex-col" id="queryPanel" style="min-width: 300px;">
+                <div class="flex-1 bg-[#11181C] rounded-xl border border-white/5 glow-border flex flex-col" id="queryPanel" style="min-width: 300px; transition: all 0.3s ease;">
                     <div class="panel-header p-4 rounded-t-xl" onclick="togglePanel('query')">
                         <h2 class="panel-title text-sm font-bold uppercase text-white/40 tracking-widest">SQL Query</h2>
                         <span class="collapse-btn text-white/40 text-sm">▼</span>
@@ -775,10 +789,10 @@
             </div>
             
             <!-- Resize Handle Horizontal -->
-            <div class="resize-handle-horizontal h-2 hover:bg-white/5 cursor-row-resize" id="horizontalResizer"></div>
+            <div class="resize-handle-horizontal h-2 hover:bg-white/5 cursor-row-resize" id="horizontalResizer" style="transition: all 0.3s ease;"></div>
 
             <!-- Query Results Table -->
-            <div class="flex-1 bg-[#11181C] rounded-xl border border-white/5 glow-border flex flex-col overflow-hidden" id="resultsPanel" style="min-height: 200px;">
+            <div class="flex-1 bg-[#11181C] rounded-xl border border-white/5 glow-border flex flex-col overflow-hidden" id="resultsPanel" style="min-height: 200px; transition: all 0.3s ease;">
                 <div class="panel-header p-4 bg-white/5 border-b border-white/5 rounded-t-xl" onclick="togglePanel('results')">
                     <div class="flex justify-between items-center flex-wrap gap-2 w-full">
                         <div class="flex items-center gap-3">
@@ -787,6 +801,20 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-[10px] text-[#34B27B] mono">Rows: <span id="result-count">0</span></span>
+                            <button onclick="toggleResultsFullscreen()" id="fullscreenBtn" class="text-[10px] bg-white/5 hover:bg-[#34B27B]/20 px-3 py-1 rounded text-white/60 hover:text-[#34B27B] font-bold transition-all" title="Toggle Fullscreen">⛶ FULLSCREEN</button>
+                            
+                            <!-- Table Count Indicators + Connect Button -->
+                            <div class="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-purple-500/20">
+                                <div id="table-indicator-1" class="w-2 h-2 rounded-full bg-white/10 transition-all duration-300" title="Table 1"></div>
+                                <div id="table-indicator-2" class="w-2 h-2 rounded-full bg-white/10 transition-all duration-300" title="Table 2"></div>
+                                <div id="table-indicator-3" class="w-2 h-2 rounded-full bg-white/10 transition-all duration-300" title="Table 3"></div>
+                                <div class="w-px h-3 bg-white/10 mx-1"></div>
+                                <button onclick="openRelationshipDesigner()" class="text-[10px] text-purple-400 hover:text-purple-300 font-bold transition-all flex items-center gap-1" title="Visual Table Relationships">
+                                    <span>🔗</span>
+                                    <span>CONNECT</span>
+                                </button>
+                            </div>
+                            
                             <button onclick="generateInsights()" class="text-[10px] bg-white/5 hover:bg-[#34B27B]/20 px-3 py-1 rounded text-white/60 hover:text-[#34B27B] font-bold transition-all">INSIGHTS</button>
                             <button onclick="showVisualization()" class="text-[10px] bg-white/5 hover:bg-[#34B27B]/20 px-3 py-1 rounded text-white/60 hover:text-[#34B27B] font-bold transition-all">VISUALIZE</button>
                             <button onclick="exportJSON()" class="text-[10px] bg-white/5 hover:bg-white/10 px-3 py-1 rounded text-white/60 font-bold transition-all">JSON</button>
@@ -867,582 +895,34 @@
         </div>
     </div>
 
+    <!-- SheetJS library for Excel file support -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
     <script type="module">
         import { GridDB, formatResultsHTML, formatResultsASCII, computeStats } from './griddb.mjs';
+        import { WebGPUViz } from './src/features/visualization/webgl-viz.js';
+        import { HistogramChart } from './src/features/visualization/chart-histogram.js';
+        import { PieChart } from './src/features/visualization/chart-pie.js';
+        import { KPICard } from './src/features/visualization/chart-kpi.js';
+        import { CSVExporter } from './src/features/export/export-csv.js';
+        import { JSONExporter } from './src/features/export/export-json.js';
+        import { InsightsAnalyzer } from './src/features/insights/insights-analyzer.js';
+        import { TableRelationshipDesignerV2 } from './src/features/visualization/table-relationship-designer-v2.js';
+        
         let db;
         let device;
         let currentTable = null;
         let lastResults = null;
         let webgpuViz = null;
         
-        /**
-         * WebGL Visualization Engine
-         * Renders 2D/3D scatter, bar, line, histogram using WebGL
-         * Can handle MILLIONS of points efficiently via GPU
-         */
-        class WebGPUViz {
-            constructor(device) {
-                this.device = device;
-                this.initialized = false;
-                this.gl = null;
-                this.shaderPrograms = {};
-            }
-
-            async init() {
-                console.log('WebGL Visualization Engine initialized');
-                this.initialized = true;
-            }
-
-            /**
-             * Initialize WebGL context and shaders
-             */
-            initWebGL(canvas) {
-                if (this.gl) return this.gl;
-
-                const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-                if (!gl) {
-                    throw new Error('WebGL not supported');
-                }
-
-                this.gl = gl;
-
-                // Create shader program for point rendering
-                this.shaderPrograms.points = this.createPointShaderProgram(gl);
-                this.shaderPrograms.lines = this.createLineShaderProgram(gl);
-                this.shaderPrograms.bars = this.createBarShaderProgram(gl);
-
-                console.log('✅ WebGL initialized successfully');
-                return gl;
-            }
-
-            /**
-             * Create shader program for point rendering (scatter plots)
-             */
-            createPointShaderProgram(gl) {
-                const vertexShaderSource = `
-                    attribute vec2 a_position;
-                    attribute vec3 a_color;
-                    attribute float a_size;
-                    
-                    uniform vec2 u_resolution;
-                    uniform vec4 u_bounds; // xMin, xMax, yMin, yMax
-                    
-                    varying vec3 v_color;
-                    
-                    void main() {
-                        // Normalize position to 0-1 range
-                        vec2 normalized = (a_position - u_bounds.xy) / (u_bounds.zw - u_bounds.xy);
-                        
-                        // Convert to clip space (-1 to 1)
-                        vec2 clipSpace = normalized * 2.0 - 1.0;
-                        clipSpace.y = -clipSpace.y; // Flip Y axis
-                        
-                        gl_Position = vec4(clipSpace, 0.0, 1.0);
-                        gl_PointSize = a_size;
-                        v_color = a_color;
-                    }
-                `;
-
-                const fragmentShaderSource = `
-                    precision mediump float;
-                    varying vec3 v_color;
-                    
-                    void main() {
-                        // Make points circular
-                        vec2 coord = gl_PointCoord - vec2(0.5);
-                        float dist = length(coord);
-                        if (dist > 0.5) discard;
-                        
-                        // Anti-aliasing
-                        float alpha = smoothstep(0.5, 0.4, dist);
-                        gl_FragColor = vec4(v_color, alpha * 0.8);
-                    }
-                `;
-
-                return this.compileShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
-            }
-
-            /**
-             * Create shader program for line rendering (line charts)
-             */
-            createLineShaderProgram(gl) {
-                const vertexShaderSource = `
-                    attribute vec2 a_position;
-                    uniform vec2 u_resolution;
-                    uniform vec4 u_bounds;
-                    
-                    void main() {
-                        vec2 normalized = (a_position - u_bounds.xy) / (u_bounds.zw - u_bounds.xy);
-                        vec2 clipSpace = normalized * 2.0 - 1.0;
-                        clipSpace.y = -clipSpace.y;
-                        gl_Position = vec4(clipSpace, 0.0, 1.0);
-                    }
-                `;
-
-                const fragmentShaderSource = `
-                    precision mediump float;
-                    uniform vec3 u_color;
-                    
-                    void main() {
-                        gl_FragColor = vec4(u_color, 0.9);
-                    }
-                `;
-
-                return this.compileShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
-            }
-
-            /**
-             * Create shader program for bar rendering
-             */
-            createBarShaderProgram(gl) {
-                const vertexShaderSource = `
-                    attribute vec2 a_position;
-                    attribute vec3 a_color;
-                    
-                    uniform vec2 u_resolution;
-                    
-                    varying vec3 v_color;
-                    
-                    void main() {
-                        vec2 clipSpace = (a_position / u_resolution) * 2.0 - 1.0;
-                        clipSpace.y = -clipSpace.y;
-                        gl_Position = vec4(clipSpace, 0.0, 1.0);
-                        v_color = a_color;
-                    }
-                `;
-
-                const fragmentShaderSource = `
-                    precision mediump float;
-                    varying vec3 v_color;
-                    
-                    void main() {
-                        gl_FragColor = vec4(v_color, 0.85);
-                    }
-                `;
-
-                return this.compileShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
-            }
-
-            /**
-             * Compile and link shader program
-             */
-            compileShaderProgram(gl, vertexSource, fragmentSource) {
-                const vertexShader = this.compileShader(gl, gl.VERTEX_SHADER, vertexSource);
-                const fragmentShader = this.compileShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
-
-                const program = gl.createProgram();
-                gl.attachShader(program, vertexShader);
-                gl.attachShader(program, fragmentShader);
-                gl.linkProgram(program);
-
-                if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-                    throw new Error('Shader program linking failed: ' + gl.getProgramInfoLog(program));
-                }
-
-                return program;
-            }
-
-            /**
-             * Compile individual shader
-             */
-            compileShader(gl, type, source) {
-                const shader = gl.createShader(type);
-                gl.shaderSource(shader, source);
-                gl.compileShader(shader);
-
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    throw new Error('Shader compilation failed: ' + gl.getShaderInfoLog(shader));
-                }
-
-                return shader;
-            }
-
-            /**
-             * Render 2D Scatter Plot with WebGL
-             * Can handle MILLIONS of points efficiently
-             */
-            async render2DScatter(canvas, data, xColumn, yColumn, colorColumn = null) {
-                const startTime = performance.now();
-                const gl = this.initWebGL(canvas);
-                
-                console.log(` WebGL Rendering ${data.length} points: X="${xColumn}", Y="${yColumn}"`);
-
-                // Extract and prepare data
-                const points = [];
-                const colors = [];
-                const sizes = [];
-                
-                let xMin = Infinity, xMax = -Infinity;
-                let yMin = Infinity, yMax = -Infinity;
-
-                data.forEach((row, idx) => {
-                    const x = parseFloat(row[xColumn]);
-                    const y = parseFloat(row[yColumn]);
-
-                    if (isNaN(x) || isNaN(y)) return;
-
-                    points.push(x, y);
-                    
-                    xMin = Math.min(xMin, x);
-                    xMax = Math.max(xMax, x);
-                    yMin = Math.min(yMin, y);
-                    yMax = Math.max(yMax, y);
-
-                    // Color based on index or color column
-                    const hue = colorColumn ? (idx / data.length) * 360 : 200;
-                    const rgb = this.hslToRgb(hue, 70, 60);
-                    colors.push(rgb[0], rgb[1], rgb[2]);
-                    
-                    sizes.push(6.0); // Point size
-                });
-
-                if (points.length === 0) {
-                    this.renderNoData(canvas);
-                    return;
-                }
-
-                // Clear and setup
-                gl.viewport(0, 0, canvas.width, canvas.height);
-                gl.clearColor(0.04, 0.04, 0.04, 1.0);
-                gl.clear(gl.COLOR_BUFFER_BIT);
-                
-                // Enable blending for transparency
-                gl.enable(gl.BLEND);
-                gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-                // Use shader program
-                const program = this.shaderPrograms.points;
-                gl.useProgram(program);
-
-                // Create and bind buffers
-                const positionBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(points), gl.STATIC_DRAW);
-
-                const positionLoc = gl.getAttribLocation(program, 'a_position');
-                gl.enableVertexAttribArray(positionLoc);
-                gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
-
-                // Color buffer
-                const colorBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-
-                const colorLoc = gl.getAttribLocation(program, 'a_color');
-                gl.enableVertexAttribArray(colorLoc);
-                gl.vertexAttribPointer(colorLoc, 3, gl.FLOAT, false, 0, 0);
-
-                // Size buffer
-                const sizeBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, sizeBuffer);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sizes), gl.STATIC_DRAW);
-
-                const sizeLoc = gl.getAttribLocation(program, 'a_size');
-                gl.enableVertexAttribArray(sizeLoc);
-                gl.vertexAttribPointer(sizeLoc, 1, gl.FLOAT, false, 0, 0);
-
-                // Set uniforms
-                const resolutionLoc = gl.getUniformLocation(program, 'u_resolution');
-                gl.uniform2f(resolutionLoc, canvas.width, canvas.height);
-
-                const boundsLoc = gl.getUniformLocation(program, 'u_bounds');
-                gl.uniform4f(boundsLoc, xMin, xMax, yMin, yMax);
-
-                // Draw all points in ONE call (GPU magic!)
-                gl.drawArrays(gl.POINTS, 0, points.length / 2);
-
-                // Draw axes using Canvas 2D overlay
-                this.drawAxes2D(canvas, xColumn, yColumn, xMin, xMax, yMin, yMax);
-
-                const elapsed = (performance.now() - startTime).toFixed(2);
-                console.log(` WebGL rendered ${points.length / 2} points in ${elapsed}ms`);
-            }
-
-            /**
-             * Render Bar Chart with WebGL
-             * Perfect for categorical data visualization
-             */
-            async renderBarChart(canvas, data, xColumn, yColumn) {
-                const startTime = performance.now();
-                const gl = this.initWebGL(canvas);
-                
-                console.log(` WebGL Bar Chart: ${data.length} categories`);
-
-                // Aggregate data by category
-                const categoryMap = new Map();
-                data.forEach(row => {
-                    const category = String(row[xColumn]);
-                    const value = parseFloat(row[yColumn]);
-                    
-                    if (!isNaN(value)) {
-                        if (!categoryMap.has(category)) {
-                            categoryMap.set(category, { sum: 0, count: 0 });
-                        }
-                        const stats = categoryMap.get(category);
-                        stats.sum += value;
-                        stats.count += 1;
-                    }
-                });
-
-                const categories = Array.from(categoryMap.keys());
-                const values = categories.map(cat => categoryMap.get(cat).sum / categoryMap.get(cat).count);
-                
-                if (values.length === 0) {
-                    this.renderNoData(canvas);
-                    return;
-                }
-
-                const maxValue = Math.max(...values);
-                const padding = 60;
-                const width = canvas.width;
-                const height = canvas.height;
-                const plotHeight = height - padding * 2;
-                const plotWidth = width - padding * 2;
-                const barWidth = plotWidth / categories.length;
-
-                // Create vertex data for bars
-                const vertices = [];
-                const colors = [];
-
-                categories.forEach((cat, idx) => {
-                    const value = values[idx];
-                    const barHeight = (value / maxValue) * plotHeight;
-                    const x = padding + idx * barWidth;
-                    const y = height - padding - barHeight;
-
-                    // Two triangles per bar (rectangle)
-                    vertices.push(
-                        x, height - padding,
-                        x + barWidth * 0.8, height - padding,
-                        x + barWidth * 0.8, y,
-                        
-                        x, height - padding,
-                        x + barWidth * 0.8, y,
-                        x, y
-                    );
-
-                    // Color gradient based on value
-                    const hue = (idx / categories.length) * 360;
-                    const rgb = this.hslToRgb(hue, 70, 60);
-                    for (let i = 0; i < 6; i++) {
-                        colors.push(rgb[0], rgb[1], rgb[2]);
-                    }
-                });
-
-                // Clear and setup
-                gl.viewport(0, 0, width, height);
-                gl.clearColor(0.04, 0.04, 0.04, 1.0);
-                gl.clear(gl.COLOR_BUFFER_BIT);
-                gl.enable(gl.BLEND);
-                gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-                // Use shader program
-                const program = this.shaderPrograms.bars;
-                gl.useProgram(program);
-
-                // Position buffer
-                const positionBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-                const positionLoc = gl.getAttribLocation(program, 'a_position');
-                gl.enableVertexAttribArray(positionLoc);
-                gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
-
-                // Color buffer
-                const colorBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-
-                const colorLoc = gl.getAttribLocation(program, 'a_color');
-                gl.enableVertexAttribArray(colorLoc);
-                gl.vertexAttribPointer(colorLoc, 3, gl.FLOAT, false, 0, 0);
-
-                // Set uniforms
-                const resolutionLoc = gl.getUniformLocation(program, 'u_resolution');
-                gl.uniform2f(resolutionLoc, width, height);
-
-                // Draw all bars
-                gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 2);
-
-                // Draw labels with Canvas 2D
-                this.drawBarLabels(canvas, categories, values, maxValue);
-
-                const elapsed = (performance.now() - startTime).toFixed(2);
-                console.log(` WebGL bar chart rendered in ${elapsed}ms`);
-            }
-
-            /**
-             * Render Histogram with WebGL
-             * Shows distribution of numeric data
-             */
-            async renderHistogram(canvas, data, column, bins = 20) {
-                const startTime = performance.now();
-                
-                // Extract numeric values
-                const values = data.map(row => parseFloat(row[column])).filter(v => !isNaN(v));
-                
-                if (values.length === 0) {
-                    this.renderNoData(canvas);
-                    return;
-                }
-
-                const min = Math.min(...values);
-                const max = Math.max(...values);
-                const binSize = (max - min) / bins;
-
-                // Create histogram bins
-                const histogram = new Array(bins).fill(0);
-                values.forEach(value => {
-                    const binIndex = Math.min(Math.floor((value - min) / binSize), bins - 1);
-                    histogram[binIndex]++;
-                });
-
-                const maxCount = Math.max(...histogram);
-                
-                // Render as bar chart
-                const histData = histogram.map((count, idx) => ({
-                    bin: (min + idx * binSize).toFixed(1),
-                    count: count
-                }));
-
-                await this.renderBarChart(canvas, histData, 'bin', 'count');
-
-                const elapsed = (performance.now() - startTime).toFixed(2);
-                console.log(`✅ Histogram rendered in ${elapsed}ms`);
-            }
-
-            /**
-             * Render 3D Scatter Plot (WebGL + 3D projection)
-             */
-            async render3DScatter(canvas, data, options) {
-                // For now, fallback to 2D rendering with z-coloring
-                const { xColumn, yColumn, zColumn } = options;
-                await this.render2DScatter(canvas, data, xColumn, yColumn, zColumn);
-            }
-
-            /**
-             * Helper: HSL to RGB conversion
-             */
-            hslToRgb(h, s, l) {
-                s /= 100;
-                l /= 100;
-                const c = (1 - Math.abs(2 * l - 1)) * s;
-                const x = c * (1 - Math.abs((h / 60) % 2 - 1));
-                const m = l - c / 2;
-                let r, g, b;
-
-                if (h < 60) { r = c; g = x; b = 0; }
-                else if (h < 120) { r = x; g = c; b = 0; }
-                else if (h < 180) { r = 0; g = c; b = x; }
-                else if (h < 240) { r = 0; g = x; b = c; }
-                else if (h < 300) { r = x; g = 0; b = c; }
-                else { r = c; g = 0; b = x; }
-
-                return [(r + m), (g + m), (b + m)];
-            }
-
-            /**
-             * Helper: Draw axes overlay using Canvas 2D
-             */
-            drawAxes2D(canvas, xLabel, yLabel, xMin, xMax, yMin, yMax) {
-                const ctx = canvas.getContext('2d', { alpha: true });
-                const width = canvas.width;
-                const height = canvas.height;
-                const padding = 60;
-
-                // Draw axis labels
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                ctx.font = 'bold 14px Inter';
-                ctx.textAlign = 'center';
-                ctx.fillText(xLabel, width / 2, height - 20);
-                
-                ctx.save();
-                ctx.translate(20, height / 2);
-                ctx.rotate(-Math.PI / 2);
-                ctx.fillText(yLabel, 0, 0);
-                ctx.restore();
-
-                // Draw axis lines
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(padding, padding);
-                ctx.lineTo(padding, height - padding);
-                ctx.lineTo(width - padding, height - padding);
-                ctx.stroke();
-
-                // Draw ticks
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-                ctx.font = '10px monospace';
-                
-                for (let i = 0; i <= 5; i++) {
-                    const xValue = xMin + (xMax - xMin) * (i / 5);
-                    const yValue = yMin + (yMax - yMin) * (i / 5);
-                    
-                    const x = padding + (width - 2 * padding) * (i / 5);
-                    const y = height - padding - (height - 2 * padding) * (i / 5);
-                    
-                    ctx.textAlign = 'center';
-                    ctx.fillText(xValue.toFixed(1), x, height - padding + 20);
-                    
-                    ctx.textAlign = 'right';
-                    ctx.fillText(yValue.toFixed(1), padding - 10, y + 4);
-                }
-            }
-
-            /**
-             * Helper: Draw bar chart labels
-             */
-            drawBarLabels(canvas, categories, values, maxValue) {
-                const ctx = canvas.getContext('2d', { alpha: true });
-                const width = canvas.width;
-                const height = canvas.height;
-                const padding = 60;
-                const barWidth = (width - 2 * padding) / categories.length;
-
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                ctx.font = '10px Inter';
-                ctx.textAlign = 'center';
-
-                categories.forEach((cat, idx) => {
-                    const x = padding + idx * barWidth + barWidth * 0.4;
-                    ctx.save();
-                    ctx.translate(x, height - padding + 15);
-                    ctx.rotate(-Math.PI / 4);
-                    ctx.fillText(String(cat).substring(0, 12), 0, 0);
-                    ctx.restore();
-
-                    // Value labels
-                    const value = values[idx];
-                    const barHeight = (value / maxValue) * (height - 2 * padding);
-                    const y = height - padding - barHeight - 5;
-                    ctx.fillText(value.toFixed(1), x, y);
-                });
-
-                // Y-axis label
-                ctx.font = 'bold 12px Inter';
-                ctx.save();
-                ctx.translate(15, height / 2);
-                ctx.rotate(-Math.PI / 2);
-                ctx.fillText('Average Value', 0, 0);
-                ctx.restore();
-            }
-
-            /**
-             * Helper: Render "no data" message
-             */
-            renderNoData(canvas) {
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#0a0a0a';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = '16px Inter';
-                ctx.textAlign = 'center';
-                ctx.fillText('No numeric data found', canvas.width / 2, canvas.height / 2);
-            }
-        }
+        // Initialize chart renderers and modules
+        const histogramChart = new HistogramChart();
+        const pieChart = new PieChart();
+        const kpiCard = new KPICard();
+        const csvExporter = new CSVExporter();
+        const jsonExporter = new JSONExporter();
+        const insightsAnalyzer = new InsightsAnalyzer();
+        const relationshipDesigner = new TableRelationshipDesignerV2();
         
         // ========================================
         // GLOBAL STATE
@@ -1962,6 +1442,63 @@
             const totalRows = parseInt(document.getElementById('total-rows').textContent.replace(/,/g, '')) || 0;
             const memoryMB = (totalRows * 50 / 1024 / 1024).toFixed(2);
             document.getElementById('gpu-memory').textContent = `${memoryMB} MB`;
+            
+            // Update table count indicators
+            updateTableIndicators();
+        }
+        
+        // Update table count indicators (green dots)
+        function updateTableIndicators() {
+            if (!db) return;
+            
+            const tableCount = db.tables.size;
+            
+            // Update up to 3 indicator dots
+            for (let i = 1; i <= 3; i++) {
+                const indicator = document.getElementById(`table-indicator-${i}`);
+                if (indicator) {
+                    if (i <= tableCount) {
+                        // Green and glowing
+                        indicator.style.backgroundColor = '#34B27B';
+                        indicator.style.boxShadow = '0 0 8px rgba(52, 178, 123, 0.8)';
+                    } else {
+                        // Gray/inactive
+                        indicator.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                        indicator.style.boxShadow = 'none';
+                    }
+                }
+            }
+            
+            console.log(`📊 Table indicators updated: ${tableCount} tables loaded`);
+            
+            // Update loaded tables list
+            updateLoadedTablesList();
+        }
+
+        function updateLoadedTablesList() {
+            if (!db) return;
+            
+            const listContainer = document.getElementById('loaded-tables-list');
+            if (!listContainer) return;
+            
+            const tables = Array.from(db.tables.entries());
+            
+            if (tables.length === 0) {
+                listContainer.innerHTML = '<span class="text-xs text-white/30">No tables loaded</span>';
+                return;
+            }
+            
+            listContainer.innerHTML = tables.map(([name, table]) => {
+                const rowCount = table.rowCount || 0;
+                return `
+                    <div class="flex items-center justify-between bg-white/5 rounded px-2 py-1 hover:bg-white/10 transition-all">
+                        <span class="text-xs text-white/70 font-mono">${name}</span>
+                        <span class="text-[10px] text-[#34B27B] font-bold">${rowCount.toLocaleString()} rows</span>
+                    </div>
+                `;
+            }).join('');
+            
+            console.log(`📋 Loaded tables list updated: ${tables.length} table(s)`);
         }
 
         // Progress bar helpers
@@ -2035,7 +1572,8 @@
                 let nullCount = 0;
                 
                 // Sample values for analysis (first 1000 or all if less)
-                const sampleSize = Math.min(1000, table.rowCount);
+                const rowCount = table.rowCount || table.rows.length || 0;
+                const sampleSize = Math.min(1000, rowCount);
                 for (let i = 0; i < sampleSize; i++) {
                     const val = table.rows[i][col.name];
                     if (val === null || val === undefined || val === '') {
@@ -2060,6 +1598,7 @@
                 const typeIcon = col.type === 'number' ? '🔢' : '📝';
                 const nullPercent = ((col.nullCount / col.totalSize) * 100).toFixed(1);
                 const uniquePercent = ((col.uniqueCount / col.totalSize) * 100).toFixed(1);
+                const rowCount = table.rowCount || 0;
                 
                 return `
                     <div class="bg-white/5 rounded-lg p-3 border border-white/5 hover:border-[#34B27B]/30 transition-all">
@@ -2073,7 +1612,7 @@
                         <div class="space-y-1 text-xs text-white/50">
                             <div class="flex justify-between">
                                 <span>Size:</span>
-                                <span class="text-white/70 font-semibold">${table.rowCount.toLocaleString()} rows</span>
+                                <span class="text-white/70 font-semibold">${rowCount.toLocaleString()} rows</span>
                             </div>
                             <div class="flex justify-between">
                                 <span>Unique:</span>
@@ -2094,72 +1633,136 @@
             }).join('');
         }
 
-        // Export results to CSV
+        // Export results to CSV using imported module
         window.exportResults = function() {
-            if (!lastResults || !lastResults.rows || lastResults.rows.length === 0) {
-                alert('No results to export. Run a query first.');
-                return;
-            }
-
             try {
-                const columns = Object.keys(lastResults.rows[0]);
-                const csvRows = [columns.join(',')];
-                lastResults.rows.forEach(row => {
-                    csvRows.push(columns.map(col => {
-                        const val = row[col];
-                        // Escape values that contain commas or quotes
-                        if (typeof val === 'string' && (val.includes(',') || val.includes('"'))) {
-                            return `"${val.replace(/"/g, '""')}"`;
-                        }
-                        return val;
-                    }).join(','));
-                });
-                const content = csvRows.join('\n');
-                
-                const blob = new Blob([content], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `query_results_${Date.now()}.csv`;
-                a.click();
-                URL.revokeObjectURL(url);
-                
-                console.log(`Exported ${lastResults.rows.length} rows to CSV`);
+                csvExporter.export(lastResults);
+                console.log(`✅ Exported ${lastResults.rows.length} rows to CSV`);
             } catch (error) {
                 console.error('Export error:', error);
-                alert('Export failed: ' + error.message);
+                alert(error.message);
             }
         };
 
+        // Toggle fullscreen mode for query results
+        let isFullscreen = false;
+        window.toggleResultsFullscreen = function() {
+            const queryRow = document.getElementById('queryRow');
+            const horizontalResizer = document.getElementById('horizontalResizer');
+            const resultsPanel = document.getElementById('resultsPanel');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            
+            isFullscreen = !isFullscreen;
+            
+            if (isFullscreen) {
+                // Hide query row and resizer, expand results
+                queryRow.style.height = '0px';
+                queryRow.style.minHeight = '0px';
+                queryRow.style.opacity = '0';
+                queryRow.style.overflow = 'hidden';
+                queryRow.style.marginBottom = '0';
+                horizontalResizer.style.height = '0px';
+                horizontalResizer.style.opacity = '0';
+                resultsPanel.style.flex = '1';
+                fullscreenBtn.innerHTML = '⛶ EXIT FULLSCREEN';
+                fullscreenBtn.classList.add('bg-[#34B27B]/20', 'text-[#34B27B]');
+            } else {
+                // Restore normal view
+                queryRow.style.height = '384px'; // h-96 = 24rem = 384px
+                queryRow.style.minHeight = '200px';
+                queryRow.style.opacity = '1';
+                queryRow.style.overflow = 'visible';
+                queryRow.style.marginBottom = '';
+                horizontalResizer.style.height = '8px';
+                horizontalResizer.style.opacity = '1';
+                resultsPanel.style.flex = '1';
+                fullscreenBtn.innerHTML = '⛶ FULLSCREEN';
+                fullscreenBtn.classList.remove('bg-[#34B27B]/20', 'text-[#34B27B]');
+            }
+        };
+
+
         // File upload handling
+        const fileInputEl = document.getElementById('fileInput');
+        
         document.getElementById('dropzone').addEventListener('click', () => {
-            document.getElementById('fileInput').click();
+            fileInputEl.click();
         });
 
-        document.getElementById('fileInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            if (!db) {
-                showNotification('Database not initialized', 'error');
-                return;
+        async function handleFileUpload(e) {
+            const files = Array.from(e.target.files || []);
+            if (files.length === 0 || !db) return;
+            
+            let success = 0, failed = 0;
+            
+            for (let i = 0; i < files.length; i++) {
+                try {
+                    await loadSingleFile(files[i], i + 1, files.length);
+                    success++;
+                } catch (error) {
+                    console.error(`Failed: ${files[i].name}`, error.message);
+                    failed++;
+                }
             }
+            
+            const total = db.tables.size;
+            
+            if (success > 0) {
+                showNotification(total > 1 ? `${total} tables loaded` : 'Table loaded!', 'success');
+                
+                if (window.tableDesignerV2) {
+                    window.tableDesignerV2.reloadTables();
+                }
+            }
+            
+            e.target.value = '';
+        }
 
+        fileInputEl.addEventListener('change', handleFileUpload);
+        
+
+        
+        // Load a single file
+        async function loadSingleFile(file, fileNum, totalFiles) {
+            console.log(`📂 Loading file ${fileNum}/${totalFiles}: ${file.name}`);
+            
             const fileSize = formatFileSize(file.size);
             const originalText = document.getElementById('dropzone').innerHTML;
             
             showProgress(`Reading ${file.name}...`, 5, fileSize);
 
             try {
-                // Simulate reading progress for large files
+                // Read file based on type
                 const readStartTime = performance.now();
-                const text = await file.text();
+                let text, arrayBuffer;
+                
+                if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    // Excel files need to be read as ArrayBuffer
+                    arrayBuffer = await file.arrayBuffer();
+                } else {
+                    // CSV and JSON files are text
+                    text = await file.text();
+                }
+                
                 const readTime = performance.now() - readStartTime;
                 
                 showProgress('Parsing data structure...', 25, fileSize);
                 await new Promise(resolve => setTimeout(resolve, 100)); // Visual feedback
                 
-                const name = file.name.replace(/\.[^/.]+$/, "");
+                // Generate unique table name (normalize for SQL)
+                let baseName = file.name
+                    .replace(/\.[^/.]+$/, "") // Remove extension
+                    .replace(/[^a-zA-Z0-9_]/g, '_') // Replace special chars with underscore
+                    .toLowerCase(); // Lowercase for consistency
+                    
+                let name = baseName;
+                let counter = 1;
+                
+                // If table already exists, add a number suffix
+                while (db.tables.has(name)) {
+                    name = `${baseName}_${counter}`;
+                    counter++;
+                }
                 
                 showProgress('Preparing GPU memory...', 40, fileSize);
                 await new Promise(resolve => setTimeout(resolve, 100));
@@ -2173,8 +1776,28 @@
                     showProgress('Loading JSON to GPU...', 60, fileSize);
                     const json = JSON.parse(text);
                     await db.loadJSON(name, json);
+                } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    showProgress('Parsing Excel file...', 50, fileSize);
+                    
+                    // Parse Excel file using SheetJS
+                    const data = new Uint8Array(arrayBuffer);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // Get the first sheet
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    
+                    // Convert to JSON
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: null });
+                    
+                    if (!jsonData || jsonData.length === 0) {
+                        throw new Error('Excel file is empty or has no data');
+                    }
+                    
+                    showProgress('Loading Excel data to GPU...', 70, fileSize);
+                    await db.loadJSON(name, jsonData);
                 } else {
-                    throw new Error('Unsupported file format. Use CSV or JSON.');
+                    throw new Error('Unsupported file format. Use CSV, JSON, or Excel (.xlsx, .xls).');
                 }
                 
                 showProgress('Building column indexes...', 85, fileSize);
@@ -2189,11 +1812,20 @@
                 
                 showProgress('Analyzing columns...', 95, fileSize);
                 
+                // Calculate total rows across all tables
+                let totalRows = 0;
+                for (const [tableName, tbl] of db.tables) {
+                    if (tbl && typeof tbl.rowCount === 'number') {
+                        totalRows += tbl.rowCount;
+                    }
+                }
+                
                 // Update UI
-                document.getElementById('total-rows').textContent = table.rowCount.toLocaleString();
+                document.getElementById('total-rows').textContent = totalRows.toLocaleString();
                 document.getElementById('dropzone').innerHTML = originalText;
                 updateStats();
                 updateColumnAnalysis(name);
+                updateTableIndicators(); // Update the indicator dots
                 
                 // Generate suggested queries
                 generateSuggestedQueries(name, table);
@@ -2207,37 +1839,61 @@
                 showProgress('Complete! ✓', 100, fileSize);
                 
                 const totalTime = (performance.now() - readStartTime).toFixed(0);
-                console.log(`Loaded table "${name}": ${table.rowCount.toLocaleString()} rows in ${totalTime}ms`);
+                const tableCount = db.tables.size;
+                const rowCount = table.rowCount || 0;
+                console.log(`✅ Loaded table "${name}": ${rowCount.toLocaleString()} rows in ${totalTime}ms (Total tables: ${tableCount})`);
+                console.log(`📊 All tables in database:`, Array.from(db.tables.keys()));
+                
+                // Show notification about multiple tables
+                if (totalFiles > 1 && fileNum < totalFiles) {
+                    // Don't show notification for each file when loading multiple
+                    console.log(`✅ [${fileNum}/${totalFiles}] Loaded table "${name}"`);
+                } else if (tableCount > 1 && totalFiles === 1) {
+                    showNotification(`✅ Table "${name}" loaded! You now have ${tableCount} tables. Click 🔗 CONNECT to visualize relationships.`, 'success');
+                } else if (totalFiles === 1 && tableCount === 1) {
+                    showNotification(`✅ Table "${name}" loaded successfully!`, 'success');
+                }
                 
                 setTimeout(() => {
                     hideProgress();
-                }, 800);
+                }, 400);
                 
                 // Auto-display first 1000 rows (but load all for viz)
-                setTimeout(async () => {
-                    try {
-                        const result = await db.query(`SELECT * FROM ${name}`);
-                        lastResults = result; // Store for visualizations - ALL ROWS
-                        
-                        // Display subset in table for performance
-                        displayResults({
-                            ...result,
-                            rows: result.rows.slice(0, 1000)
-                        });
-                        
-                        console.log(`Loaded ${result.rowCount} total rows (showing first 1000 in table)`);
-                    } catch (err) {
-                        console.log('Auto-query error:', err);
-                    }
-                }, 900);
+                if (fileNum === totalFiles) {
+                    // Only auto-display after the last file
+                    setTimeout(async () => {
+                        try {
+                            // Verify the table exists before querying
+                            if (!db.tables.has(name)) {
+                                console.warn(`⚠️ Table '${name}' not found in database. Available tables:`, Array.from(db.tables.keys()));
+                                return;
+                            }
+                            
+                            // Query with normalized table name
+                            const result = await db.query(`SELECT * FROM ${name}`);
+                            lastResults = result; // Store for visualizations - ALL ROWS
+                            
+                            // Display subset in table for performance
+                            displayResults({
+                                ...result,
+                                rows: result.rows.slice(0, 1000)
+                            });
+                            
+                            console.log(`Loaded ${result.rowCount} total rows (showing first 1000 in table)`);
+                        } catch (err) {
+                            console.log('Auto-query error:', err);
+                        }
+                    }, 500);
+                }
                 
             } catch (error) {
-                console.error('File load error:', error);
+                console.error(`File load error (${file.name}):`, error);
                 document.getElementById('dropzone').innerHTML = originalText;
                 hideProgress();
-                showNotification(`Error: ${error.message}`, 'error');
+                showNotification(`Error loading ${file.name}: ${error.message}`, 'error');
+                throw error; // Re-throw so the parent handler can count it
             }
-        });
+        }
 
         // Drag and drop
         const dropzone = document.getElementById('dropzone');
@@ -2268,7 +1924,19 @@
                 alert('No results to visualize. Run a query first.');
                 return;
             }
-            alert('Visualization feature:\n\nThis would show interactive charts with Observable Plot.\nFeature available in griddb_demo.html');
+            
+            // Check if axes are assigned or graph type is selected
+            const xAxis = document.getElementById('viz-x-axis')?.dataset.column;
+            const yAxis = document.getElementById('viz-y-axis')?.dataset.column;
+            const graphType = window.selectedGraphType;
+            
+            if (!graphType || (!xAxis && !yAxis)) {
+                showNotification('Please select columns and a graph type from the Visualization panel on the left sidebar first', 'error');
+                return;
+            }
+            
+            // Call the main visualization trigger
+            triggerVisualization();
         };
 
         window.visualizeData = function(type) {
@@ -2277,6 +1945,78 @@
             }
             // Chart creation logic would go here
             console.log(`Creating ${type} chart...`);
+        };
+
+        // Load demo tables for testing relationship designer
+        window.loadDemoTables = async function() {
+            if (!db) {
+                alert('Database not initialized. Please wait...');
+                return;
+            }
+            
+            try {
+                // Table 1: Orders
+                const ordersData = [
+                    { order_id: 1, customer_id: 101, product_name: 'Laptop', quantity: 2, price: 1200, order_date: '2024-01-15' },
+                    { order_id: 2, customer_id: 102, product_name: 'Mouse', quantity: 5, price: 25, order_date: '2024-01-16' },
+                    { order_id: 3, customer_id: 101, product_name: 'Keyboard', quantity: 2, price: 75, order_date: '2024-01-17' },
+                    { order_id: 4, customer_id: 103, product_name: 'Monitor', quantity: 1, price: 350, order_date: '2024-01-18' },
+                    { order_id: 5, customer_id: 102, product_name: 'Laptop', quantity: 1, price: 1200, order_date: '2024-01-19' }
+                ];
+                
+                // Table 2: Customers
+                const customersData = [
+                    { customer_id: 101, name: 'Alice Johnson', email: 'alice@example.com', total_spent: 0, loyalty_points: 0 },
+                    { customer_id: 102, name: 'Bob Smith', email: 'bob@example.com', total_spent: 0, loyalty_points: 0 },
+                    { customer_id: 103, name: 'Carol White', email: 'carol@example.com', total_spent: 0, loyalty_points: 0 }
+                ];
+                
+                // Load tables
+                await db.loadJSON('orders', ordersData);
+                await db.loadJSON('customers', customersData);
+                
+                // Update stats
+                updateStats();
+                
+                // Show success message
+                alert('✅ Demo tables loaded!\n\n' +
+                      '📦 Orders table: 5 rows\n' +
+                      '👥 Customers table: 3 rows\n\n' +
+                      'Now click the 🔗 CONNECT button to open the relationship designer!\n\n' +
+                      '💡 Try connecting:\n' +
+                      '• orders.customer_id → customers.customer_id (lookup)\n' +
+                      '• orders.price → customers.total_spent (sum)');
+                
+                console.log('✅ Demo tables loaded: orders (5 rows), customers (3 rows)');
+                
+            } catch (error) {
+                console.error('Error loading demo tables:', error);
+                alert('Error loading demo tables:\n\n' + error.message);
+            }
+        };
+
+        // Open relationship designer
+        window.openRelationshipDesigner = function() {
+            if (!db || db.tables.size === 0) {
+                const loadDemo = confirm(
+                    '⚠️ No tables loaded.\n\n' +
+                    'Would you like to load demo tables (Orders + Customers) to test the relationship designer?\n\n' +
+                    'Click OK to load demo, or Cancel to go back.'
+                );
+                
+                if (loadDemo) {
+                    loadDemoTables();
+                }
+                return;
+            }
+            
+            try {
+                relationshipDesigner.open(db.tables, db);
+                console.log('🔗 Relationship designer opened with', db.tables.size, 'tables');
+            } catch (error) {
+                console.error('Relationship designer error:', error);
+                alert(error.message);
+            }
         };
 
         // Generate insights
@@ -2314,23 +2054,15 @@
             console.log('Insights generated:', insights);
         };
 
-        // Export to JSON
+        // Export to JSON using imported module
         window.exportJSON = function() {
-            if (!lastResults || !lastResults.rows || lastResults.rows.length === 0) {
-                alert('No results to export.');
-                return;
+            try {
+                jsonExporter.export(lastResults);
+                console.log(`📦 Exported ${lastResults.rows.length} rows to JSON`);
+            } catch (error) {
+                console.error('Export error:', error);
+                alert(error.message);
             }
-
-            const content = JSON.stringify(lastResults.rows, null, 2);
-            const blob = new Blob([content], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `query_results_${Date.now()}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            console.log(`Exported ${lastResults.rows.length} rows to JSON`);
         };
 
         // Set query in editor
@@ -3661,6 +3393,9 @@
                     case 'kpi':
                         await renderKPICard(modal, data, columnNames);
                         break;
+                    case 'pie':
+                        await renderPieChart(modal, data, columnNames);
+                        break;
                     default:
                         showNotification(`Visualization type "${type}" not yet implemented`, 'warn');
                         modal.remove();
@@ -4331,149 +4066,42 @@
         };
 
         /**
-         * Render Histogram (WebGPU)
+         * Render Histogram using imported module
          */
         async function renderHistogram(modal, data, columns) {
-            const canvas = modal.querySelector('#viz-canvas');
-            
-            // Extract column name properly
-            const column = columns[0]?.name || columns[0];
-            
-            console.log('Histogram for column:', column);
-            
-            // Get numeric values
-            const values = data.map(d => parseFloat(d[column])).filter(v => !isNaN(v));
-            
-            if (values.length === 0) {
-                showNotification('No numeric values found in column ' + column, 'error');
+            try {
+                await histogramChart.render(modal, data, columns);
+            } catch (error) {
+                console.error('Histogram render error:', error);
+                showNotification(error.message, 'error');
                 modal.remove();
-                return;
             }
-
-            const min = Math.min(...values);
-            const max = Math.max(...values);
-            const numBins = 30;
-            const binWidth = (max - min) / numBins;
-
-            // Create bins
-            const bins = Array(numBins).fill(0);
-            values.forEach(v => {
-                const binIndex = Math.min(Math.floor((v - min) / binWidth), numBins - 1);
-                bins[binIndex]++;
-            });
-
-            const maxBinCount = Math.max(...bins);
-
-            // Display as HTML bars
-            canvas.style.display = 'none';
-            const container = canvas.parentElement;
-            
-            container.innerHTML = `
-                <div class="w-full max-w-6xl">
-                    <div class="flex items-end gap-1 h-96 px-8">
-                        ${bins.map((count, i) => {
-                            const height = (count / maxBinCount) * 100;
-                            const binStart = min + i * binWidth;
-                            const binEnd = binStart + binWidth;
-                            return `
-                            <div class="flex-1 flex flex-col items-center justify-end group cursor-pointer">
-                                <div class="w-full bg-gradient-to-t from-[#34B27B] to-[#4ecdc4] rounded-t transition-all hover:opacity-80"
-                                     style="height: ${height}%"
-                                     title="${binStart.toFixed(1)} - ${binEnd.toFixed(1)}: ${count} items">
-                                </div>
-                                <div class="text-[9px] text-white/30 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    ${count}
-                                </div>
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    <div class="flex justify-between text-xs text-white/50 px-8 mt-4">
-                        <span>${min.toFixed(1)}</span>
-                        <span>${((min + max) / 2).toFixed(1)}</span>
-                        <span>${max.toFixed(1)}</span>
-                    </div>
-                </div>
-            `;
-
-            const controlsDiv = modal.querySelector('#viz-controls');
-            const stats = await computeStats(db, data, column);
-            controlsDiv.innerHTML = `
-                <div class="text-sm flex gap-6">
-                    <div><span class="text-white/50">Range:</span> <span class="text-[#34B27B]">${min.toFixed(1)} - ${max.toFixed(1)}</span></div>
-                    <div><span class="text-white/50">Mean:</span> <span class="text-[#34B27B]">${stats.avg.toFixed(2)}</span></div>
-                    <div><span class="text-white/50">Median:</span> <span class="text-[#34B27B]">${stats.median.toFixed(2)}</span></div>
-                    <div><span class="text-white/50">Bins:</span> <span class="text-[#34B27B]">${numBins}</span></div>
-                </div>
-            `;
-            
-            console.log('Histogram rendered');
         }
 
         /**
-         * Render KPI Card (WebGPU compute shaders)
+         * Render Pie Chart using imported module
+         */
+        async function renderPieChart(modal, data, columns) {
+            try {
+                await pieChart.render(modal, data, columns);
+            } catch (error) {
+                console.error('Pie chart render error:', error);
+                showNotification(error.message, 'error');
+                modal.remove();
+            }
+        }
+
+        /**
+         * Render KPI Card using imported module
          */
         async function renderKPICard(modal, data, columns) {
-            const canvas = modal.querySelector('#viz-canvas');
-            
-            // Extract column name properly
-            const column = columns[0]?.name || columns[0];
-            
-            console.log(' KPI Card for column:', column);
-            
-            // Compute stats using GPU
-            const stats = await computeStats(db, data, column);
-
-            // Display as HTML instead of canvas
-            canvas.style.display = 'none';
-            const container = canvas.parentElement;
-            
-            container.innerHTML = `
-                <div class="grid grid-cols-3 gap-6 max-w-6xl w-full">
-                    <div class="bg-[#11181C] rounded-xl border border-white/10 p-8 hover:border-[#34B27B]/30 transition-all">
-                        <div class="text-sm text-white/50 uppercase tracking-wider mb-2">Minimum</div>
-                        <div class="text-4xl font-bold outfit text-[#34B27B] glow-text">${stats.min.toLocaleString()}</div>
-                    </div>
-                    <div class="bg-[#11181C] rounded-xl border border-white/10 p-8 hover:border-[#34B27B]/30 transition-all">
-                        <div class="text-sm text-white/50 uppercase tracking-wider mb-2">Maximum</div>
-                        <div class="text-4xl font-bold outfit text-[#34B27B] glow-text">${stats.max.toLocaleString()}</div>
-                    </div>
-                    <div class="bg-[#11181C] rounded-xl border border-white/10 p-8 hover:border-[#34B27B]/30 transition-all">
-                        <div class="text-sm text-white/50 uppercase tracking-wider mb-2">Average</div>
-                        <div class="text-4xl font-bold outfit text-[#34B27B] glow-text">${stats.avg.toFixed(2)}</div>
-                    </div>
-                    <div class="bg-[#11181C] rounded-xl border border-white/10 p-8 hover:border-[#34B27B]/30 transition-all">
-                        <div class="text-sm text-white/50 uppercase tracking-wider mb-2">Median</div>
-                        <div class="text-4xl font-bold outfit text-[#34B27B] glow-text">${stats.median.toFixed(2)}</div>
-                    </div>
-                    <div class="bg-[#11181C] rounded-xl border border-white/10 p-8 hover:border-[#34B27B]/30 transition-all">
-                        <div class="text-sm text-white/50 uppercase tracking-wider mb-2">Std Dev</div>
-                        <div class="text-4xl font-bold outfit text-[#34B27B] glow-text">${stats.stdDev.toFixed(2)}</div>
-                    </div>
-                    <div class="bg-[#11181C] rounded-xl border border-white/10 p-8 hover:border-[#34B27B]/30 transition-all">
-                        <div class="text-sm text-white/50 uppercase tracking-wider mb-2">Count</div>
-                        <div class="text-4xl font-bold outfit text-[#34B27B] glow-text">${stats.count.toLocaleString()}</div>
-                    </div>
-                    <div class="col-span-3 bg-[#11181C] rounded-xl border border-white/10 p-8">
-                        <div class="text-sm text-white/50 uppercase tracking-wider mb-4">Range</div>
-                        <div class="flex items-center gap-4">
-                            <div class="flex-1">
-                                <div class="h-3 bg-gradient-to-r from-[#34B27B]/20 via-[#34B27B]/40 to-[#34B27B]/20 rounded-full relative">
-                                    <div class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-[#34B27B] rounded-full shadow-lg shadow-[#34B27B]/50"></div>
-                                    <div class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-[#34B27B] rounded-full shadow-lg shadow-[#34B27B]/50"></div>
-                                </div>
-                            </div>
-                            <div class="text-2xl font-bold text-[#34B27B] mono">${(stats.max - stats.min).toLocaleString()}</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            modal.querySelector('#viz-controls').innerHTML = `
-                <div class="text-sm text-white/50">
-                    Analyzed ${column} • ${stats.count.toLocaleString()} values
-                </div>
-            `;
+            try {
+                await kpiCard.render(modal, data, columns);
+            } catch (error) {
+                console.error('KPI card render error:', error);
+                showNotification(error.message, 'error');
+                modal.remove();
+            }
         }
 
         /**

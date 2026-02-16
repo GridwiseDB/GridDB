@@ -2238,6 +2238,152 @@ Examples:
   }
 
   /**
+   * Perform element-wise binary operation on two columns using WebGPU.
+   * 
+   * @param {string} table1Name - First table name
+   * @param {string} column1Name - First column name
+   * @param {string} table2Name - Second table name (can be same as table1)
+   * @param {string} column2Name - Second column name
+   * @param {string} operation - Operation: 'add', 'subtract', 'multiply', 'divide', 'average'
+   * @returns {Promise<Float32Array>} Result array
+   */
+  async applyBinaryOperation(table1Name, column1Name, table2Name, column2Name, operation) {
+    const table1 = this.tables.get(table1Name);
+    const table2 = this.tables.get(table2Name);
+    
+    if (!table1 || !table2) {
+      throw new GridDBError('Table not found', 'TABLE_NOT_FOUND');
+    }
+    
+    // Get column values
+    const values1 = table1.getColumnValues(column1Name).map(v => parseFloat(v) || 0);
+    const values2 = table2.getColumnValues(column2Name).map(v => parseFloat(v) || 0);
+    
+    // Use minimum length
+    const length = Math.min(values1.length, values2.length);
+    
+    // Create GPU buffers
+    const input1Buffer = new Buffer({
+      device: this.device,
+      datatype: 'f32',
+      length: length,
+      label: `${table1Name}.${column1Name}`,
+      createCPUBuffer: true,
+      createGPUBuffer: true,
+    });
+    
+    const input2Buffer = new Buffer({
+      device: this.device,
+      datatype: 'f32',
+      length: length,
+      label: `${table2Name}.${column2Name}`,
+      createCPUBuffer: true,
+      createGPUBuffer: true,
+    });
+    
+    const outputBuffer = new Buffer({
+      device: this.device,
+      datatype: 'f32',
+      length: length,
+      label: 'binop_output',
+      createGPUBuffer: true,
+      createMappableGPUBuffer: true,
+    });
+    
+    // Copy data to GPU
+    input1Buffer.cpuBuffer.set(new Float32Array(values1.slice(0, length)));
+    input2Buffer.cpuBuffer.set(new Float32Array(values2.slice(0, length)));
+    await input1Buffer.copyCPUToGPU();
+    await input2Buffer.copyCPUToGPU();
+    
+    // Create compute shader for element-wise operation
+    let operationWGSL;
+    switch (operation) {
+      case 'add':
+      case 'sum':
+        operationWGSL = 'output[global_id.x] = input1[global_id.x] + input2[global_id.x];';
+        break;
+      case 'subtract':
+        operationWGSL = 'output[global_id.x] = input1[global_id.x] - input2[global_id.x];';
+        break;
+      case 'multiply':
+        operationWGSL = 'output[global_id.x] = input1[global_id.x] * input2[global_id.x];';
+        break;
+      case 'divide':
+        operationWGSL = 'output[global_id.x] = select(0.0, input1[global_id.x] / input2[global_id.x], input2[global_id.x] != 0.0);';
+        break;
+      case 'average':
+        operationWGSL = 'output[global_id.x] = (input1[global_id.x] + input2[global_id.x]) / 2.0;';
+        break;
+      default:
+        throw new GridDBError(`Unsupported operation: ${operation}`, 'UNSUPPORTED_OPERATION');
+    }
+    
+    const shaderCode = `
+      @group(0) @binding(0) var<storage, read> input1: array<f32>;
+      @group(0) @binding(1) var<storage, read> input2: array<f32>;
+      @group(0) @binding(2) var<storage, read_write> output: array<f32>;
+      
+      @compute @workgroup_size(256)
+      fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+        if (global_id.x >= ${length}u) { return; }
+        ${operationWGSL}
+      }
+    `;
+    
+    const shaderModule = this.device.createShaderModule({
+      label: `binop_${operation}`,
+      code: shaderCode,
+    });
+    
+    const pipeline = this.device.createComputePipeline({
+      label: `binop_${operation}_pipeline`,
+      layout: 'auto',
+      compute: {
+        module: shaderModule,
+        entryPoint: 'main',
+      },
+    });
+    
+    const bindGroup = this.device.createBindGroup({
+      label: `binop_${operation}_bindgroup`,
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: input1Buffer.buffer },
+        { binding: 1, resource: input2Buffer.buffer },
+        { binding: 2, resource: outputBuffer.buffer },
+      ],
+    });
+    
+    // Execute
+    const commandEncoder = this.device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginComputePass();
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setBindGroup(0, bindGroup);
+    const workgroups = Math.ceil(length / 256);
+    passEncoder.dispatchWorkgroups(workgroups);
+    passEncoder.end();
+    
+    this.device.queue.submit([commandEncoder.finish()]);
+    await this.device.queue.onSubmittedWorkDone();
+    
+    // Read results
+    await outputBuffer.copyGPUToCPU();
+    const result = new Float32Array(outputBuffer.cpuBuffer);
+    
+    // Cleanup
+    input1Buffer.destroy();
+    input2Buffer.destroy();
+    outputBuffer.destroy();
+    
+    if (this.config.enableLogging) {
+      console.log(`🚀 GPU ${operation}: ${table1Name}.${column1Name} ${operation} ${table2Name}.${column2Name} (${length} elements)`);
+    }
+    
+    return result;
+  }
+
+  /**
    * Cleanup all database resources.
    * 
    * Call this method when you're done using the database to:
