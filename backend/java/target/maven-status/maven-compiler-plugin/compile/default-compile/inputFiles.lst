@@ -1,0 +1,11 @@
+/Volumes/T7 Shield/GridDB/backend/java/src/main/java/com/griddb/GridDbApplication.java
+/Volumes/T7 Shield/GridDB/backend/java/src/main/java/com/griddb/config/CorsConfig.java
+/Volumes/T7 Shield/GridDB/backend/java/src/main/java/com/griddb/controller/DataImportController.java
+/Volumes/T7 Shield/GridDB/backend/java/src/main/java/com/griddb/controller/GeminiController.java
+/Volumes/T7 Shield/GridDB/backend/java/src/main/java/com/griddb/controller/GlobalExceptionHandler.java
+/Volumes/T7 Shield/GridDB/backend/java/src/main/java/com/griddb/controller/TableController.java
+/Volumes/T7 Shield/GridDB/backend/java/src/main/java/com/griddb/model/ImportResult.java
+/Volumes/T7 Shield/GridDB/backend/java/src/main/java/com/griddb/model/MySqlImportRequest.java
+/Volumes/T7 Shield/GridDB/backend/java/src/main/java/com/griddb/model/TableData.java
+/Volumes/T7 Shield/GridDB/backend/java/src/main/java/com/griddb/service/DataImportService.java
+/Volumes/T7 Shield/GridDB/backend/java/src/main/java/com/griddb/store/TableStore.java

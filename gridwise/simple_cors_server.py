@@ -11,9 +11,9 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "GET")
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
         self.send_header("Cross-Origin-Opener-Policy", "same-origin")
-        self.send_header("Cross-Origin-Embedder-Policy", "require-corp")
+        self.send_header("Cross-Origin-Embedder-Policy", "credentialless")
         return super(CORSRequestHandler, self).end_headers()
 
 
-httpd = HTTPServer(("localhost", 8000), CORSRequestHandler)
+httpd = HTTPServer(("localhost", 3000), CORSRequestHandler)
 httpd.serve_forever()

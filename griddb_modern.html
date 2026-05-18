@@ -483,6 +483,46 @@
                             <p id="loadProgressSize" class="text-[9px] text-[#34B27B] font-bold mono"></p>
                         </div>
                     </div>
+
+                    <!-- Backend import tabs -->
+                    <div class="mt-4 border-t border-white/5 pt-3">
+                        <div class="flex gap-1 mb-3">
+                            <button onclick="switchImportTab('mysql')"   id="tab-mysql"   class="import-tab flex-1 px-2 py-1.5 text-[10px] font-bold uppercase rounded-lg bg-white/5 text-white/40 hover:bg-white/10 transition-all">🗄 MySQL</button>
+                            <button onclick="switchImportTab('restore')" id="tab-restore" class="import-tab flex-1 px-2 py-1.5 text-[10px] font-bold uppercase rounded-lg bg-white/5 text-white/40 hover:bg-white/10 transition-all">☁ Restore</button>
+                        </div>
+
+                        <!-- MySQL import pane -->
+                        <div id="pane-mysql" class="hidden space-y-2">
+                            <p class="text-[9px] text-white/30 mb-2">Credentials saved in <span class="text-[#34B27B] mono">backend/.env</span> are used as defaults.</p>
+                            <input id="mysql-host"     type="text"     placeholder="Host (127.0.0.1)"  class="w-full bg-black/30 border border-white/10 rounded px-2 py-1.5 text-[11px] text-white/70 focus:border-[#34B27B]/50 focus:outline-none">
+                            <div class="flex gap-1">
+                                <input id="mysql-port" type="number"   placeholder="Port (3306)"       class="w-20 bg-black/30 border border-white/10 rounded px-2 py-1.5 text-[11px] text-white/70 focus:border-[#34B27B]/50 focus:outline-none">
+                                <input id="mysql-db"   type="text"     placeholder="Database"          class="flex-1 bg-black/30 border border-white/10 rounded px-2 py-1.5 text-[11px] text-white/70 focus:border-[#34B27B]/50 focus:outline-none">
+                            </div>
+                            <input id="mysql-user"     type="text"     placeholder="User"              class="w-full bg-black/30 border border-white/10 rounded px-2 py-1.5 text-[11px] text-white/70 focus:border-[#34B27B]/50 focus:outline-none">
+                            <input id="mysql-pass"     type="password" placeholder="Password"          class="w-full bg-black/30 border border-white/10 rounded px-2 py-1.5 text-[11px] text-white/70 focus:border-[#34B27B]/50 focus:outline-none">
+                            <input id="mysql-table"    type="text"     placeholder="Table name (or leave blank for custom query)" class="w-full bg-black/30 border border-white/10 rounded px-2 py-1.5 text-[11px] text-white/70 focus:border-[#34B27B]/50 focus:outline-none">
+                            <input id="mysql-query"    type="text"     placeholder="Custom SELECT query (optional)" class="w-full bg-black/30 border border-white/10 rounded px-2 py-1.5 text-[11px] text-white/70 focus:border-[#34B27B]/50 focus:outline-none">
+                            <input id="mysql-name"     type="text"     placeholder="GridDB table name (optional)" class="w-full bg-black/30 border border-white/10 rounded px-2 py-1.5 text-[11px] text-white/70 focus:border-[#34B27B]/50 focus:outline-none">
+                            <div class="flex gap-2 mt-1">
+                                <button onclick="testMySQLConnection()" class="flex-1 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/50 text-[10px] font-bold uppercase rounded-lg transition-all">Test</button>
+                                <button onclick="importFromMySQL()"     class="flex-1 px-3 py-1.5 bg-[#34B27B] hover:bg-[#2d9a68] text-black text-[10px] font-bold uppercase rounded-lg transition-all">Import ⚡</button>
+                            </div>
+                            <div id="mysql-status" class="text-[9px] text-white/40 mt-1 hidden"></div>
+                        </div>
+
+                        <!-- Restore from backend pane -->
+                        <div id="pane-restore" class="hidden">
+                            <p class="text-[9px] text-white/30 mb-2">Load tables stored in the Java backend into WebGPU.</p>
+                            <div id="backend-tables-list" class="space-y-1 max-h-36 overflow-y-auto mb-2">
+                                <p class="text-[9px] text-white/20 text-center py-2">Click Refresh to list backend tables</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="refreshBackendTables()" class="flex-1 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/50 text-[10px] font-bold uppercase rounded-lg transition-all">↻ Refresh</button>
+                                <button onclick="restoreAllFromBackend()" class="flex-1 px-3 py-1.5 bg-[#34B27B] hover:bg-[#2d9a68] text-black text-[10px] font-bold uppercase rounded-lg transition-all">Load All ⚡</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -667,6 +707,37 @@
                                 </div>
                             </div>
 
+                            <!-- Divider -->
+                            <div class="flex items-center gap-2 py-1">
+                                <div class="flex-1 h-px bg-white/5"></div>
+                                <span class="text-[8px] text-white/20 uppercase tracking-widest">Analysis</span>
+                                <div class="flex-1 h-px bg-white/5"></div>
+                            </div>
+
+                            <!-- Root Cause Analysis (Statistical) -->
+                            <div class="bg-orange-500/5 hover:bg-orange-500/15 border border-orange-500/20 hover:border-orange-500/40 rounded-lg p-2 cursor-pointer transition-all" onclick="openRCAWizard()">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-lg">🔬</div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-semibold text-orange-300">Root Cause Analysis</div>
+                                        <div class="text-xs text-white/40">Defect spikes · CAPA · AI insights</div>
+                                    </div>
+                                    <div class="text-[9px] text-orange-400 font-bold">RCA →</div>
+                                </div>
+                            </div>
+
+                            <!-- 5 Whys / Fishbone Worksheet -->
+                            <div class="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#34B27B]/50 rounded-lg p-2 cursor-pointer transition-all" onclick="openRCAWorksheet()">
+                                <div class="flex items-center gap-2">
+                                    <div class="text-lg">📋</div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-semibold text-white/80">RCA Worksheet</div>
+                                        <div class="text-xs text-white/40">5 Whys · Fishbone · AI Report</div>
+                                    </div>
+                                    <div class="text-[9px] text-[#34B27B] font-bold">→</div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -816,6 +887,7 @@
                             </div>
                             
                             <button onclick="generateInsights()" class="text-[10px] bg-white/5 hover:bg-[#34B27B]/20 px-3 py-1 rounded text-white/60 hover:text-[#34B27B] font-bold transition-all">INSIGHTS</button>
+                            <button onclick="openRCAWizard()" class="text-[10px] bg-orange-500/10 hover:bg-orange-500/25 px-3 py-1 rounded text-orange-400 hover:text-orange-300 font-bold transition-all" title="Root Cause Analysis & CAPA Effectiveness">🔬 RCA</button>
                             <button onclick="showVisualization()" class="text-[10px] bg-white/5 hover:bg-[#34B27B]/20 px-3 py-1 rounded text-white/60 hover:text-[#34B27B] font-bold transition-all">VISUALIZE</button>
                             <button onclick="exportJSON()" class="text-[10px] bg-white/5 hover:bg-white/10 px-3 py-1 rounded text-white/60 font-bold transition-all">JSON</button>
                             <button onclick="exportResults()" class="text-[10px] bg-white/5 hover:bg-white/10 px-3 py-1 rounded text-white/60 font-bold transition-all">CSV</button>
@@ -844,6 +916,162 @@
             </div>
         </section>
     </main>
+
+    <!-- Create Table Modal -->
+    <!-- ══════════════════════════════════════════════════════════════
+         RCA WIZARD MODAL — step 1: configure table / column mapping
+         ══════════════════════════════════════════════════════════════ -->
+    <div id="rcaWizardModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50" style="display:none;">
+        <div class="bg-[#0D1117] rounded-xl border border-orange-500/20 p-6 max-w-2xl w-full mx-4 max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <h2 class="text-lg font-bold text-white outfit">🔬 Root Cause Analysis</h2>
+                    <p class="text-[10px] text-white/30 mt-0.5">Map your tables to run statistical RCA & CAPA effectiveness analysis</p>
+                </div>
+                <button onclick="closeRCAWizard()" class="text-white/40 hover:text-white text-2xl">&times;</button>
+            </div>
+
+            <!-- Section: Defect Table (required) -->
+            <div class="space-y-3">
+                <div class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">① Defect / NCR Table <span class="text-red-400">*required</span></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[9px] text-white/30 uppercase block mb-1">Table</label>
+                        <select id="rca-defect-table" onchange="rcaPopulateCols('defect')" class="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70 focus:border-orange-500/40 focus:outline-none">
+                            <option value="">— select —</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-white/30 uppercase block mb-1">Timestamp Column</label>
+                        <select id="rca-defect-ts" class="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70 focus:border-orange-500/40 focus:outline-none">
+                            <option value="">— none (no timeline) —</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-white/30 uppercase block mb-1">Defect Count Column (optional)</label>
+                        <select id="rca-defect-count" class="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70 focus:border-orange-500/40 focus:outline-none">
+                            <option value="">— count rows —</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-white/30 uppercase block mb-1">Defect Type Column (optional)</label>
+                        <select id="rca-defect-type" class="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70 focus:border-orange-500/40 focus:outline-none">
+                            <option value="">— none —</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section: CAPA Table (optional) -->
+                <div class="border-t border-white/5 pt-3 mt-3">
+                    <div class="text-[10px] font-bold text-yellow-400/80 uppercase tracking-widest mb-2">② CAPA / Corrective Action Table <span class="text-white/20">(optional — enables KPI calculation)</span></div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[9px] text-white/30 uppercase block mb-1">Table</label>
+                            <select id="rca-capa-table" onchange="rcaPopulateCols('capa')" class="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70 focus:border-orange-500/40 focus:outline-none">
+                                <option value="">— none —</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-white/30 uppercase block mb-1">Timestamp Column</label>
+                            <select id="rca-capa-ts" class="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70 focus:border-orange-500/40 focus:outline-none">
+                                <option value="">— none —</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-white/30 uppercase block mb-1">Status Column</label>
+                            <select id="rca-capa-status" class="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70 focus:border-orange-500/40 focus:outline-none">
+                                <option value="">— none —</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-white/30 uppercase block mb-1">Defect Type Column (link to defects)</label>
+                            <select id="rca-capa-type" class="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70 focus:border-orange-500/40 focus:outline-none">
+                                <option value="">— none —</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Factor Tables (process/machine/operator) -->
+                <div class="border-t border-white/5 pt-3 mt-3">
+                    <div class="text-[10px] font-bold text-blue-400/80 uppercase tracking-widest mb-2">③ Factor Tables <span class="text-white/20">(machine / operator / supplier / process — for correlation analysis)</span></div>
+                    <div id="rca-factor-list" class="space-y-2 mb-2">
+                        <!-- dynamically added rows -->
+                    </div>
+                    <button onclick="rcaAddFactorRow()" class="text-[10px] text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-3 py-1.5 rounded font-bold transition-all">+ Add Factor Table</button>
+                </div>
+
+                <div id="rca-wizard-error" class="text-[10px] text-red-400 hidden mt-2"></div>
+
+                <div class="flex gap-3 mt-4 pt-3 border-t border-white/5">
+                    <button onclick="closeRCAWizard()" class="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/50 text-xs font-bold uppercase rounded-lg transition-all">Cancel</button>
+                    <button onclick="runRCAAnalysis()" class="flex-2 flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-black text-xs font-bold uppercase rounded-lg transition-all">🔬 Run Analysis</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         RCA RESULTS MODAL — step 2: show full analysis
+         ══════════════════════════════════════════════════════════════ -->
+    <div id="rcaResultsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50" style="display:none;">
+        <div class="bg-[#0D1117] rounded-xl border border-orange-500/20 p-0 max-w-4xl w-full mx-4 max-h-[94vh] flex flex-col">
+            <!-- Header -->
+            <div class="flex justify-between items-center p-5 border-b border-white/5 flex-shrink-0">
+                <div>
+                    <h2 class="text-lg font-bold text-white outfit">🔬 Root Cause Analysis Results</h2>
+                    <p id="rca-result-subtitle" class="text-[10px] text-white/30 mt-0.5"></p>
+                </div>
+                <div class="flex gap-2 items-center">
+                    <button onclick="rcaBackToWizard()" class="text-[10px] bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded text-white/50 font-bold transition-all">← Reconfigure</button>
+                    <button onclick="closeRCAResults()" class="text-white/40 hover:text-white text-2xl ml-2">&times;</button>
+                </div>
+            </div>
+
+            <!-- Scrollable body -->
+            <div class="overflow-y-auto flex-1 p-5 space-y-5" id="rca-results-body">
+                <p class="text-white/30 text-center py-10">Running analysis…</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- RCA WORKSHEET MODAL (5 Whys → Fishbone → Report)       -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="rcaWorksheetModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center z-50" style="display:none;">
+        <div class="bg-[#0D1117] rounded-xl glow-border max-w-2xl w-full mx-4 max-h-[94vh] flex flex-col">
+
+            <!-- Header -->
+            <div class="flex justify-between items-center px-5 pt-5 pb-4 border-b border-white/5 flex-shrink-0">
+                <div>
+                    <h2 class="text-base font-bold text-white outfit">📋 RCA Worksheet</h2>
+                    <p class="text-[10px] text-white/30 mt-0.5">5 Whys · Ishikawa Fishbone · Corrective Action · AI Report</p>
+                </div>
+                <button onclick="closeRCAWorksheet()" class="text-white/40 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+
+            <!-- Step progress bar -->
+            <div class="flex items-center px-5 py-3 border-b border-white/5 flex-shrink-0">
+                <div id="ws-step-row" class="flex items-center w-full gap-0"></div>
+            </div>
+
+            <!-- Dynamic content area -->
+            <div id="rca-ws-content" class="flex-1 overflow-y-auto p-5">
+            </div>
+
+            <!-- Footer nav -->
+            <div class="flex gap-3 px-5 py-4 border-t border-white/5 flex-shrink-0">
+                <button id="rca-ws-back-btn" onclick="rcaWsBack()"
+                    class="px-5 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/8 text-white/50 text-xs font-bold transition-all"
+                    style="display:none;">← Back</button>
+                <div class="flex-1"></div>
+                <button id="rca-ws-next-btn" onclick="rcaWsNext()"
+                    class="px-6 py-2.5 rounded-lg bg-[#34B27B] hover:bg-[#2d9a68] text-black text-xs font-bold uppercase tracking-wide transition-all glow-border">
+                    Next →
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Create Table Modal -->
     <div id="createTableModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50" style="display: none;">
@@ -896,17 +1124,19 @@
     </div>
 
     <!-- SheetJS library for Excel file support -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="/public/xlsx.full.min.js"></script>
 
     <script type="module">
         import { GridDB, formatResultsHTML, formatResultsASCII, computeStats } from './griddb.mjs';
         import { WebGPUViz } from './src/features/visualization/webgl-viz.js';
+        import { BarChart } from './src/features/visualization/chart-bar.js';
         import { HistogramChart } from './src/features/visualization/chart-histogram.js';
         import { PieChart } from './src/features/visualization/chart-pie.js';
         import { KPICard } from './src/features/visualization/chart-kpi.js';
         import { CSVExporter } from './src/features/export/export-csv.js';
         import { JSONExporter } from './src/features/export/export-json.js';
         import { InsightsAnalyzer } from './src/features/insights/insights-analyzer.js';
+        import { RCAAnalyzer } from './src/features/insights/rca-analyzer.js';
         import { TableRelationshipDesignerV2 } from './src/features/visualization/table-relationship-designer-v2.js';
         
         let db;
@@ -914,14 +1144,1617 @@
         let currentTable = null;
         let lastResults = null;
         let webgpuViz = null;
+
+        // ── Java backend base URL ─────────────────────────────────────────────
+        // The Spring Boot backend runs on port 3001.
+        // All WebGPU compute (queries, GROUP BY, ORDER BY, JOIN) stays in the
+        // browser. The backend handles persistence and MySQL import only.
+        const API_BASE = 'http://localhost:3001';
+
+        // Gemini is called directly from the browser (no backend hop needed).
+        // Quota is per-model and per-project — swap the model name here if needed.
+        const GEMINI_API_KEY = 'AIzaSyBrT_uVgqkNfs15Tb7HUy1FoTHMtrQeQsY';
+        const GEMINI_MODEL   = 'gemini-2.5-flash-lite';
+        const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+        // ── Backend helpers ───────────────────────────────────────────────────
+
+        /** POST a CSV file to the Java backend so the data is persisted. */
+        async function syncCsvToBackend(tableName, csvText) {
+            try {
+                await fetch(`${API_BASE}/api/import/csv?tableName=${encodeURIComponent(tableName)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: csvText,
+                });
+            } catch (e) {
+                console.warn('[Backend] CSV sync failed (backend may be offline):', e.message);
+            }
+        }
+
+        /** POST a JSON array to the Java backend so the data is persisted. */
+        async function syncJsonToBackend(tableName, rows) {
+            try {
+                await fetch(`${API_BASE}/api/import/json?tableName=${encodeURIComponent(tableName)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(rows),
+                });
+            } catch (e) {
+                console.warn('[Backend] JSON sync failed (backend may be offline):', e.message);
+            }
+        }
+
+        /**
+         * Fetch a table's rows from the Java backend and load them into
+         * the local WebGPU GridDB instance.
+         */
+        async function loadFromBackend(name) {
+            if (!db) throw new Error('WebGPU not initialised');
+            const res = await fetch(`${API_BASE}/api/tables/${encodeURIComponent(name)}/data`);
+            if (!res.ok) throw new Error(`Backend returned ${res.status} for table "${name}"`);
+            const { rows } = await res.json();
+            await db.loadJSON(name, rows);
+            return rows.length;
+        }
+
+        /** List tables stored in the Java backend. */
+        async function fetchBackendTables() {
+            const res = await fetch(`${API_BASE}/api/tables`);
+            if (!res.ok) throw new Error(`Backend health check failed (${res.status}). Is the Java server running on port 3001?`);
+            return res.json(); // string[]
+        }
+
+        // ── Import tab switching ──────────────────────────────────────────────
+
+        window.switchImportTab = function(tab) {
+            ['mysql', 'restore'].forEach(t => {
+                document.getElementById(`pane-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('bg-[#34B27B]/20', 'text-[#34B27B]');
+                document.getElementById(`tab-${t}`).classList.add('bg-white/5', 'text-white/40');
+            });
+            document.getElementById(`pane-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.remove('bg-white/5', 'text-white/40');
+            document.getElementById(`tab-${tab}`).classList.add('bg-[#34B27B]/20', 'text-[#34B27B]');
+        };
+
+        // ── MySQL import (runs via Java backend) ──────────────────────────────
+
+        function getMySQLConfig() {
+            return {
+                host:      document.getElementById('mysql-host').value.trim()  || undefined,
+                port:      parseInt(document.getElementById('mysql-port').value) || undefined,
+                database:  document.getElementById('mysql-db').value.trim()    || undefined,
+                user:      document.getElementById('mysql-user').value.trim()  || undefined,
+                password:  document.getElementById('mysql-pass').value        || undefined,
+                table:     document.getElementById('mysql-table').value.trim() || undefined,
+                query:     document.getElementById('mysql-query').value.trim() || undefined,
+                tableName: document.getElementById('mysql-name').value.trim()  || undefined,
+            };
+        }
+
+        function setMySQLStatus(msg, type = 'info') {
+            const el = document.getElementById('mysql-status');
+            el.classList.remove('hidden', 'text-[#34B27B]', 'text-red-400', 'text-white/40');
+            const colors = { success: 'text-[#34B27B]', error: 'text-red-400', info: 'text-white/40' };
+            el.classList.add(colors[type] || 'text-white/40');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+
+        window.testMySQLConnection = async function() {
+            setMySQLStatus('Testing connection…');
+            try {
+                const res = await fetch(`${API_BASE}/api/import/test-mysql`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(getMySQLConfig()),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || res.statusText);
+                setMySQLStatus(`✓ Connected — ${data.tables.length} table(s): ${data.tables.slice(0,5).join(', ')}`, 'success');
+            } catch (e) {
+                setMySQLStatus(`✗ ${e.message}`, 'error');
+            }
+        };
+
+        window.importFromMySQL = async function() {
+            if (!db) { showNotification('WebGPU not ready', 'error'); return; }
+            setMySQLStatus('Importing from MySQL via backend…');
+            showProgress('Connecting to MySQL…', 20);
+            try {
+                const res = await fetch(`${API_BASE}/api/import/mysql`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(getMySQLConfig()),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || res.statusText);
+
+                showProgress('Loading data into WebGPU…', 60);
+                // Fetch full row data and load into local WebGPU GridDB
+                const rowCount = await loadFromBackend(data.tableName);
+                currentTable = data.tableName;
+
+                showProgress('Analysing columns…', 90);
+                document.getElementById('total-rows').textContent =
+                    (parseInt(document.getElementById('total-rows').textContent.replace(/,/g,''))||0) + rowCount;
+                updateStats();
+                updateColumnAnalysis(data.tableName);
+                generateSuggestedQueries(data.tableName, db.tables.get(data.tableName));
+
+                showProgress('Done! ✓', 100);
+                setMySQLStatus(`✓ ${rowCount.toLocaleString()} rows loaded into WebGPU as "${data.tableName}"`, 'success');
+                showNotification(`MySQL import complete — ${rowCount.toLocaleString()} rows in WebGPU ⚡`, 'success');
+
+                const result = await db.query(`SELECT * FROM ${data.tableName} LIMIT 1000`);
+                lastResults = result;
+                displayResults(result);
+                setTimeout(hideProgress, 500);
+            } catch (e) {
+                hideProgress();
+                setMySQLStatus(`✗ ${e.message}`, 'error');
+                showNotification(`MySQL import failed: ${e.message}`, 'error');
+            }
+        };
+
+        // ── Restore from backend ──────────────────────────────────────────────
+
+        window.refreshBackendTables = async function() {
+            const container = document.getElementById('backend-tables-list');
+            container.innerHTML = '<p class="text-[9px] text-white/20 text-center py-2">Loading…</p>';
+            try {
+                const tables = await fetchBackendTables();
+                if (tables.length === 0) {
+                    container.innerHTML = '<p class="text-[9px] text-white/20 text-center py-2">No tables on backend yet</p>';
+                    return;
+                }
+                container.innerHTML = tables.map(name => `
+                    <div class="flex items-center justify-between bg-white/5 rounded px-2 py-1 hover:bg-white/10 transition-all">
+                        <span class="text-[10px] text-white/70 mono">${name}</span>
+                        <button onclick="loadSingleBackendTable('${name}')"
+                                class="text-[9px] px-2 py-0.5 bg-[#34B27B]/20 hover:bg-[#34B27B]/40 text-[#34B27B] rounded font-bold transition-all">
+                            Load ⚡
+                        </button>
+                    </div>`).join('');
+            } catch (e) {
+                container.innerHTML = `<p class="text-[9px] text-red-400 py-2">${e.message}</p>`;
+            }
+        };
+
+        window.loadSingleBackendTable = async function(name) {
+            if (!db) { showNotification('WebGPU not ready', 'error'); return; }
+            showProgress(`Loading "${name}" from backend…`, 40);
+            try {
+                const rowCount = await loadFromBackend(name);
+                currentTable = name;
+                document.getElementById('total-rows').textContent =
+                    (parseInt(document.getElementById('total-rows').textContent.replace(/,/g,''))||0) + rowCount;
+                updateStats(); updateColumnAnalysis(name);
+                generateSuggestedQueries(name, db.tables.get(name));
+                showProgress('Done! ✓', 100);
+                showNotification(`"${name}" loaded into WebGPU — ${rowCount.toLocaleString()} rows ⚡`, 'success');
+                const result = await db.query(`SELECT * FROM ${name} LIMIT 1000`);
+                lastResults = result; displayResults(result);
+                setTimeout(hideProgress, 400);
+            } catch (e) {
+                hideProgress();
+                showNotification(`Failed to load "${name}": ${e.message}`, 'error');
+            }
+        };
+
+        window.restoreAllFromBackend = async function() {
+            if (!db) { showNotification('WebGPU not ready', 'error'); return; }
+            showProgress('Listing backend tables…', 10);
+            try {
+                const tables = await fetchBackendTables();
+                if (tables.length === 0) { hideProgress(); showNotification('No tables on backend', 'info'); return; }
+                let loaded = 0;
+                for (let i = 0; i < tables.length; i++) {
+                    showProgress(`Loading ${tables[i]}… (${i+1}/${tables.length})`, 10 + ((i+1)/tables.length)*85);
+                    await loadFromBackend(tables[i]);
+                    loaded++;
+                }
+                updateStats();
+                showProgress('Done! ✓', 100);
+                showNotification(`Restored ${loaded} table(s) from backend into WebGPU ⚡`, 'success');
+                setTimeout(hideProgress, 500);
+            } catch (e) {
+                hideProgress();
+                showNotification(`Restore failed: ${e.message}`, 'error');
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // ROOT CAUSE ANALYSIS (RCA) & CAPA EFFECTIVENESS
+        // ═══════════════════════════════════════════════════════════════════════
+
+        /** Populate a <select> with the given option list */
+        function _rcaFillSelect(id, options, includeNone = false) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const prev = el.value;
+            el.innerHTML = includeNone ? '<option value="">— none —</option>' : '<option value="">— select —</option>';
+            options.forEach(o => {
+                const opt = document.createElement('option');
+                opt.value = o; opt.textContent = o;
+                el.appendChild(opt);
+            });
+            if (options.includes(prev)) el.value = prev;
+        }
+
+        /** Fill table dropdowns with all currently loaded tables */
+        function _rcaFillTableSelects() {
+            if (!db) return;
+            const tables = db.listTables ? db.listTables() : [...(db.tables ? db.tables.keys() : [])];
+            ['rca-defect-table', 'rca-capa-table'].forEach(id => {
+                _rcaFillSelect(id, tables, id !== 'rca-defect-table');
+            });
+            // Also update any existing factor row selects
+            document.querySelectorAll('.rca-factor-table-sel').forEach(sel => {
+                const prev = sel.value;
+                sel.innerHTML = '<option value="">— select —</option>';
+                tables.forEach(t => { const o = document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o); });
+                if (tables.includes(prev)) sel.value = prev;
+            });
+        }
+
+        /** Populate column dropdowns when a table is selected */
+        window.rcaPopulateCols = function(which) {
+            if (!db) return;
+            const tableId = which === 'defect' ? 'rca-defect-table' : 'rca-capa-table';
+            const tableName = document.getElementById(tableId).value;
+            if (!tableName) return;
+            const tableData = db.tables ? db.tables.get(tableName) : null;
+            if (!tableData) return;
+            const cols = tableData.columns || (tableData.rows && tableData.rows[0] ? Object.keys(tableData.rows[0]) : []);
+            if (!cols.length) return;
+
+            // Auto-detect with the RCA analyzer's heuristics
+            const detected = rcaAnalyzer.autoDetect(cols);
+
+            if (which === 'defect') {
+                _rcaFillSelect('rca-defect-ts',    cols, true);
+                _rcaFillSelect('rca-defect-count',  cols, true);
+                _rcaFillSelect('rca-defect-type',   cols, true);
+                // Auto-select best guesses
+                if (detected.timestampCols[0]) document.getElementById('rca-defect-ts').value    = detected.timestampCols[0];
+                if (detected.countCols[0])     document.getElementById('rca-defect-count').value = detected.countCols[0];
+                if (detected.typeCols[0])      document.getElementById('rca-defect-type').value  = detected.typeCols[0];
+            } else {
+                _rcaFillSelect('rca-capa-ts',     cols, true);
+                _rcaFillSelect('rca-capa-status',  cols, true);
+                _rcaFillSelect('rca-capa-type',    cols, true);
+                if (detected.timestampCols[0]) document.getElementById('rca-capa-ts').value     = detected.timestampCols[0];
+                if (detected.statusCols[0])    document.getElementById('rca-capa-status').value = detected.statusCols[0];
+                if (detected.typeCols[0])      document.getElementById('rca-capa-type').value   = detected.typeCols[0];
+            }
+        };
+
+        /** Add a factor-table row to the wizard */
+        window.rcaAddFactorRow = function() {
+            if (!db) return;
+            const tables = db.listTables ? db.listTables() : [...(db.tables ? db.tables.keys() : [])];
+            const list = document.getElementById('rca-factor-list');
+            const idx = list.children.length;
+            const div = document.createElement('div');
+            div.className = 'flex gap-2 items-center';
+            div.innerHTML = `
+                <select class="rca-factor-table-sel flex-1 bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70 focus:outline-none" onchange="rcaPopulateFactorTs(this)">
+                    <option value="">— table —</option>
+                    ${tables.map(t=>`<option value="${t}">${t}</option>`).join('')}
+                </select>
+                <select class="rca-factor-ts-sel w-36 bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-white/70 focus:outline-none">
+                    <option value="">— ts col —</option>
+                </select>
+                <button onclick="this.parentElement.remove()" class="text-white/30 hover:text-red-400 text-lg font-bold transition-all">×</button>`;
+            list.appendChild(div);
+        };
+
+        /** Populate the timestamp column selector for a factor table row */
+        window.rcaPopulateFactorTs = function(tableSelect) {
+            const row = tableSelect.closest('div');
+            const tsSelect = row.querySelector('.rca-factor-ts-sel');
+            const tableName = tableSelect.value;
+            if (!tableName || !db) return;
+            const tableData = db.tables ? db.tables.get(tableName) : null;
+            if (!tableData) return;
+            const cols = tableData.columns || (tableData.rows && tableData.rows[0] ? Object.keys(tableData.rows[0]) : []);
+            tsSelect.innerHTML = '<option value="">— ts col —</option>';
+            cols.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; tsSelect.appendChild(o); });
+            const detected = rcaAnalyzer.autoDetect(cols);
+            if (detected.timestampCols[0]) tsSelect.value = detected.timestampCols[0];
+        };
+
+        window.openRCAWizard = function() {
+            if (!db) { showNotification('Load at least one table first', 'error'); return; }
+            _rcaFillTableSelects();
+            document.getElementById('rca-factor-list').innerHTML = '';
+            document.getElementById('rca-wizard-error').classList.add('hidden');
+            const modal = document.getElementById('rcaWizardModal');
+            modal.style.display = 'flex'; modal.classList.remove('hidden');
+        };
+
+        window.closeRCAWizard = function() {
+            const modal = document.getElementById('rcaWizardModal');
+            modal.style.display = 'none'; modal.classList.add('hidden');
+        };
+
+        window.closeRCAResults = function() {
+            const modal = document.getElementById('rcaResultsModal');
+            modal.style.display = 'none'; modal.classList.add('hidden');
+        };
+
+        window.rcaBackToWizard = function() {
+            closeRCAResults();
+            openRCAWizard();
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // RCA WORKSHEET — 5 Whys · Fishbone · Corrective Action · Report
+        // ═══════════════════════════════════════════════════════════════════
+        let rcaWs = {
+            step: 1,
+            mode: 'manual',        // 'manual' | 'ai'
+            uploadedText: '',
+            uploadedFileName: '',
+            autoLoading: false,    // full auto-analysis in progress
+            defect: { id: '', description: '', severity: 'Major', date: '', line: '' },
+            whys:   ['', '', '', '', ''],
+            fishbone: { Man: '', Machine: '', Material: '', Method: '', Environment: '', Measurement: '' },
+            rc: { type: 'Process', physical: '', systemic: '', action: '', owner: '', targetDate: '' },
+            aiAnalysis: null,
+            aiLoading: false
+        };
+
+        window.openRCAWorksheet = function() {
+            rcaWs.step = 1;
+            rcaWs.mode = 'manual';
+            rcaWs.uploadedText = '';
+            rcaWs.uploadedFileName = '';
+            rcaWs.autoLoading = false;
+            rcaWs.defect = { id: '', description: '', severity: 'Major', date: new Date().toISOString().slice(0,10), line: '' };
+            rcaWs.whys = ['', '', '', '', ''];
+            rcaWs.fishbone = { Man: '', Machine: '', Material: '', Method: '', Environment: '', Measurement: '' };
+            rcaWs.rc = { type: 'Process', physical: '', systemic: '', action: '', owner: '', targetDate: '' };
+            rcaWs.aiAnalysis = null;
+            // Pre-populate from currently loaded table so user doesn't need to re-upload
+            try {
+                if (typeof db !== 'undefined' && db && typeof currentTable !== 'undefined' && currentTable &&
+                    db.tables && db.tables.has(currentTable)) {
+                    const tbl = db.tables.get(currentTable);
+                    if (tbl) {
+                        const cols = tbl.columns || (tbl.rows?.[0] ? Object.keys(tbl.rows[0]) : []);
+                        const rows = (tbl.rows || []).slice(0, 500);
+                        if (cols.length && rows.length) {
+                            const csv = [cols.join(','), ...rows.map(r => cols.map(c => {
+                                const v = String(r[c] ?? '');
+                                return v.includes(',') || v.includes('"') || v.includes('\n')
+                                    ? `"${v.replace(/"/g, '""')}"` : v;
+                            }).join(','))].join('\n');
+                            rcaWs.uploadedText = csv;
+                            rcaWs.uploadedFileName = currentTable + '.csv';
+                        }
+                    }
+                }
+            } catch(e) {}
+            document.getElementById('rcaWorksheetModal').style.display = 'flex';
+            _wsRender();
+        };
+
+        window.rcaWsSetMode = function(m) {
+            rcaWs.mode = m;
+            _wsRender();
+        };
+
+        window.rcaWsHandleFile = function(input) {
+            const file = input.files[0];
+            if (!file) return;
+            rcaWs.uploadedFileName = file.name;
+            if (file.name.match(/\.xlsx?$/i)) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const wb = XLSX.read(data, { type: 'array' });
+                        const ws = wb.Sheets[wb.SheetNames[0]];
+                        const csv = XLSX.utils.sheet_to_csv(ws);
+                        rcaWs.uploadedText = csv;
+                        const ta = document.getElementById('ws-upload-text');
+                        if (ta) ta.value = csv.slice(0, 8000);
+                        _wsRender();
+                    } catch(err) { alert('Could not parse Excel file: ' + err.message); }
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    rcaWs.uploadedText = e.target.result;
+                    const ta = document.getElementById('ws-upload-text');
+                    if (ta) ta.value = rcaWs.uploadedText.slice(0, 8000);
+                    _wsRender();
+                };
+                reader.readAsText(file);
+            }
+        };
+
+        window.rcaWsClearUpload = function() {
+            rcaWs.uploadedText = '';
+            rcaWs.uploadedFileName = '';
+            _wsRender();
+        };
+
+        window.rcaWsAutoAnalyse = async function() {
+            const txt = (document.getElementById('ws-upload-text')?.value || '').trim();
+            if (!txt) { alert('Paste or upload a document first.'); return; }
+            rcaWs.uploadedText = txt;
+            rcaWs.autoLoading = true;
+            _wsRender();
+
+            const today = new Date().toISOString().slice(0,10);
+            const prompt = `You are an expert Root Cause Analysis (RCA) engineer in a manufacturing environment.
+Analyse the following document and generate a COMPLETE Root Cause Analysis, including a full 5 Whys chain and Fishbone diagram.
+
+Document:
+---
+${txt.slice(0, 7000)}
+---
+
+Return ONLY raw JSON (no markdown code fences, no explanation outside JSON):
+{
+  "defect": {
+    "id": "extracted or inferred defect/issue ID",
+    "description": "precise problem statement — what failed, where, how many affected",
+    "severity": "Critical|Major|Minor",
+    "date": "YYYY-MM-DD or leave empty",
+    "line": "process or line name"
+  },
+  "whys": [
+    "Why 1: direct cause of the defect",
+    "Why 2: cause of Why 1",
+    "Why 3: cause of Why 2",
+    "Why 4: cause of Why 3",
+    "Why 5: deepest systemic root cause"
+  ],
+  "fishbone": {
+    "Man": "training gap, fatigue, skill issue, or empty string",
+    "Machine": "equipment, calibration, fixture issue, or empty string",
+    "Material": "wrong spec, incoming quality, handling, or empty string",
+    "Method": "missing SOP step, wrong procedure, no checkpoint, or empty string",
+    "Environment": "temperature, humidity, contamination, or empty string",
+    "Measurement": "no audit, wrong gauge, measurement error, or empty string"
+  },
+  "rootCauseType": "Process|Human|Equipment|Design",
+  "physicalCause": "what physically failed or was wrong",
+  "systemicCause": "what process/system gap allowed this defect to occur",
+  "suggestedCorrectiveAction": "specific, actionable corrective action targeting the systemic cause",
+  "mostLikelyRootCause": "one sentence primary root cause",
+  "additionalRootCauses": ["second possibility", "third possibility"],
+  "confidence": "High|Medium|Low",
+  "gaps": ["information gaps or assumptions made"],
+  "summary": "2-3 sentence executive summary of the RCA finding"
+}`;
+
+            try {
+                const resp = await fetch(GEMINI_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { temperature: 0.2, maxOutputTokens: 2048 }
+                    })
+                });
+                const data = await resp.json();
+                if (data.error) throw new Error(data.error.code === 429 ? 'Rate limit — quota exhausted' : data.error.message);
+                const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                const clean = raw.replace(/^```[\w]*\n?/,'').replace(/\n?```$/,'').trim();
+                const p = JSON.parse(clean);
+
+                // Fill all state from AI
+                rcaWs.defect   = { id: p.defect?.id||'', description: p.defect?.description||'', severity: p.defect?.severity||'Major', date: p.defect?.date||today, line: p.defect?.line||'' };
+                rcaWs.whys     = (p.whys||[]).slice(0,5).concat(['','','','','']).slice(0,5);
+                rcaWs.fishbone = { Man: p.fishbone?.Man||'', Machine: p.fishbone?.Machine||'', Material: p.fishbone?.Material||'', Method: p.fishbone?.Method||'', Environment: p.fishbone?.Environment||'', Measurement: p.fishbone?.Measurement||'' };
+                rcaWs.rc       = { type: p.rootCauseType||'Process', physical: p.physicalCause||'', systemic: p.systemicCause||'', action: p.suggestedCorrectiveAction||'', owner: '', targetDate: '' };
+                rcaWs.aiAnalysis = { mostLikelyRootCause: p.mostLikelyRootCause, additionalRootCauses: p.additionalRootCauses||[], confidence: p.confidence||'Medium', gaps: p.gaps||[], physicalCause: p.physicalCause, systemicCause: p.systemicCause, suggestedCorrectiveAction: p.suggestedCorrectiveAction, rootCauseType: p.rootCauseType, summary: p.summary };
+                rcaWs.autoLoading = false;
+                rcaWs.step = 6; // AI review screen
+                _wsRender();
+            } catch(e) {
+                rcaWs.autoLoading = false;
+                rcaWs.aiAnalysis = { error: e.message };
+                rcaWs.step = 6;
+                _wsRender();
+            }
+        };
+
+        window.closeRCAWorksheet = function() {
+            document.getElementById('rcaWorksheetModal').style.display = 'none';
+        };
+
+        window.rcaWsNext = async function() {
+            _wsSave(rcaWs.step);
+            if (rcaWs.step === 1 && !rcaWs.defect.description.trim()) {
+                alert('Please enter a defect description before continuing.'); return;
+            }
+            if (rcaWs.step === 3) {
+                // transition 3→4: run Gemini analysis in background
+                rcaWs.step = 4;
+                rcaWs.aiAnalysis = null;
+                rcaWs.aiLoading = true;
+                _wsRender();
+                await _wsCallGemini();
+                rcaWs.aiLoading = false;
+                _wsRender();   // re-render step 4 with results
+                return;
+            }
+            if (rcaWs.step < 5) { rcaWs.step++; _wsRender(); }
+        };
+
+        async function _wsCallGemini() {
+            try {
+                const whysText = rcaWs.whys.map((w,i)=>w?`Why ${i+1}: ${w}`:'').filter(Boolean).join('\n');
+                const fishText = Object.entries(rcaWs.fishbone).filter(([,v])=>v.trim()).map(([k,v])=>`  ${k}: ${v}`).join('\n') || '  (none filled)';
+                const prompt = `You are an expert Root Cause Analysis (RCA) engineer.
+
+Defect: ${rcaWs.defect.description}
+Severity: ${rcaWs.defect.severity}
+Line/Process: ${rcaWs.defect.line || 'Not specified'}
+
+5 Whys Chain:
+${whysText || '(not completed)'}
+
+Fishbone Diagram — Contributing Factors:
+${fishText}
+
+Based ONLY on the evidence above, provide a concise RCA analysis in the following JSON format (no markdown fences, just raw JSON):
+{
+  "mostLikelyRootCause": "One sentence — the primary root cause supported by the evidence",
+  "confidence": "High|Medium|Low",
+  "rootCauseType": "Process|Human|Equipment|Design",
+  "additionalRootCauses": [
+    "Second possible root cause with category label",
+    "Third possible root cause with category label"
+  ],
+  "physicalCause": "What physically failed or was wrong",
+  "systemicCause": "What process/system gap allowed this to happen",
+  "suggestedCorrectiveAction": "Specific, actionable corrective action targeting the systemic cause",
+  "gaps": ["Any gaps or weak points in the 5 Whys or Fishbone analysis"]
+}`;
+
+                const resp = await fetch(GEMINI_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { temperature: 0.3, maxOutputTokens: 1024 }
+                    })
+                });
+                const data = await resp.json();
+                if (data.error) {
+                    const msg = data.error.code === 429 ? 'Rate limit reached — free-tier quota exhausted. Analysis unavailable.' : data.error.message;
+                    rcaWs.aiAnalysis = { error: msg }; return;
+                }
+                const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                // strip markdown fences if model adds them
+                const clean = raw.replace(/^```[\w]*\n?/,'').replace(/\n?```$/,'').trim();
+                const parsed = JSON.parse(clean);
+                rcaWs.aiAnalysis = parsed;
+                // auto-pre-fill step 4 fields if empty
+                if (!rcaWs.rc.physical && parsed.physicalCause)  rcaWs.rc.physical  = parsed.physicalCause;
+                if (!rcaWs.rc.systemic && parsed.systemicCause) rcaWs.rc.systemic = parsed.systemicCause;
+                if (!rcaWs.rc.action   && parsed.suggestedCorrectiveAction) rcaWs.rc.action = parsed.suggestedCorrectiveAction;
+                if (parsed.rootCauseType) rcaWs.rc.type = parsed.rootCauseType;
+            } catch(e) {
+                rcaWs.aiAnalysis = { error: 'Could not parse Gemini response. ' + e.message };
+            }
+        }
+
+        window.rcaWsBack = function() {
+            _wsSave(rcaWs.step);
+            if (rcaWs.step > 1) { rcaWs.step--; _wsRender(); }
+        };
+
+        window.rcaWsSetSev = function(s) {
+            rcaWs.defect.severity = s;
+            ['Critical','Major','Minor'].forEach(x => {
+                const el = document.getElementById('ws-sev-'+x);
+                if (!el) return;
+                const on  = 'border-2 font-bold ';
+                const map = { Critical:'border-red-400 bg-red-500/20 text-red-300', Major:'border-orange-400 bg-orange-500/20 text-orange-300', Minor:'border-green-400 bg-green-500/20 text-green-300' };
+                const off = 'border border-white/10 bg-white/5 text-white/50';
+                el.className = `flex-1 py-2.5 rounded-lg text-sm transition-all ${x===s ? on+map[x] : off}`;
+            });
+        };
+
+        window.rcaWsSetType = function(t) {
+            rcaWs.rc.type = t;
+            ['Process','Human','Equipment','Design'].forEach(x => {
+                const el = document.getElementById('ws-rc-type-'+x);
+                if (!el) return;
+                el.className = `text-left p-3 rounded-lg border transition-all ${x===t
+                    ? 'bg-purple-500/20 border-purple-400 text-purple-300'
+                    : 'bg-white/5 border-white/10 text-white/50'}`;
+            });
+            const w = document.getElementById('ws-human-warn');
+            if (w) w.style.display = t === 'Human' ? 'block' : 'none';
+        };
+
+        window.rcaWsWhyInput = function(i) {
+            rcaWs.whys[i] = document.getElementById('ws-why-'+i)?.value || '';
+            if (i < 4) {
+                const lbl = document.getElementById('ws-why-lbl-'+(i+1));
+                if (lbl) {
+                    const prev = rcaWs.whys[i].slice(0,65) + (rcaWs.whys[i].length>65?'…':'');
+                    lbl.innerHTML = `WHY ${i+2} &mdash; Why <em>${prev||'…'}</em>?`;
+                }
+            }
+            // update root cause preview
+            const finalVal = rcaWs.whys.filter(Boolean).pop() || '';
+            const box = document.getElementById('ws-why-rc-box');
+            const txt = document.getElementById('ws-why-rc-txt');
+            if (box && txt) { box.style.display = finalVal ? 'block' : 'none'; txt.textContent = finalVal; }
+        };
+
+        window.rcaWsPrint = function() { _wsSave(5); window.print(); };
+
+        function _wsSave(step) {
+            const g = id => document.getElementById(id)?.value || '';
+            if (step === 1) {
+                rcaWs.defect.id   = g('ws-id');
+                rcaWs.defect.description = g('ws-desc');
+                rcaWs.defect.date = g('ws-date');
+                rcaWs.defect.line = g('ws-line');
+            } else if (step === 2) {
+                for (let i=0;i<5;i++) rcaWs.whys[i] = g('ws-why-'+i);
+            } else if (step === 3) {
+                Object.keys(rcaWs.fishbone).forEach(k => { rcaWs.fishbone[k] = g('ws-fish-'+k); });
+            } else if (step === 4) {
+                rcaWs.rc.physical   = g('ws-rc-physical');
+                rcaWs.rc.systemic   = g('ws-rc-systemic');
+                rcaWs.rc.action     = g('ws-rc-action');
+                rcaWs.rc.owner      = g('ws-rc-owner');
+                rcaWs.rc.targetDate = g('ws-rc-date');
+            }
+        }
+
+        function _wsRender() {
+            // Step progress row — hide during AI review (step 6) or auto-loading
+            const stepsVisible = rcaWs.step >= 1 && rcaWs.step <= 5 && !rcaWs.autoLoading;
+            const stepRow = document.getElementById('ws-step-row');
+            if (stepRow) stepRow.parentElement.style.display = stepsVisible ? '' : 'none';
+
+            if (stepsVisible) {
+                const steps = [{n:1,lbl:'Defect'},{n:2,lbl:'5 Whys'},{n:3,lbl:'Fishbone'},{n:4,lbl:'Action'},{n:5,lbl:'Report'}];
+                stepRow.innerHTML = steps.map((s,idx) => `
+                    <div class="flex items-center ${idx<steps.length-1?'flex-1':''}">
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold border transition-all
+                                ${s.n < rcaWs.step ? 'bg-[#34B27B] border-[#34B27B] text-black'
+                                : s.n === rcaWs.step ? 'border-[#34B27B] text-[#34B27B] bg-[#34B27B]/10'
+                                : 'bg-white/5 border-white/10 text-white/30'}">${s.n < rcaWs.step ? '✓' : s.n}</div>
+                            <span class="text-[8px] ${s.n === rcaWs.step ? 'text-[#34B27B]' : 'text-white/20'} whitespace-nowrap">${s.lbl}</span>
+                        </div>
+                        ${idx<steps.length-1 ? `<div class="flex-1 h-px mx-1 mt-[-10px] ${s.n < rcaWs.step ? 'bg-[#34B27B]/40' : 'bg-white/8'}"></div>` : ''}
+                    </div>`).join('');
+            }
+
+            // Back / Next buttons
+            const back = document.getElementById('rca-ws-back-btn');
+            const next = document.getElementById('rca-ws-next-btn');
+            const hideNav = rcaWs.autoLoading || rcaWs.aiLoading || rcaWs.step >= 5 || rcaWs.step === 6;
+            if (back) back.style.display = (rcaWs.step <= 1 || rcaWs.autoLoading || rcaWs.aiLoading || rcaWs.step === 6) ? 'none' : 'block';
+            if (next) {
+                next.style.display = (rcaWs.step >= 5 || rcaWs.autoLoading || rcaWs.aiLoading || rcaWs.step === 6) ? 'none' : 'block';
+                next.textContent = rcaWs.step === 3 ? 'ANALYSE WITH AI →' : rcaWs.step === 4 ? 'GENERATE REPORT →' : 'NEXT →';
+            }
+
+            // Content
+            const content = document.getElementById('rca-ws-content');
+            if (!content) return;
+            if (rcaWs.autoLoading) { content.innerHTML = _wsStepAIReview(); return; }
+            const fns = { 1:_wsStep1, 2:_wsStep2, 3:_wsStep3, 4:_wsStep4, 5:_wsStep5, 6:_wsStepAIReview };
+            content.innerHTML = (fns[rcaWs.step] || _wsStep1)();
+        }
+
+        function _inp(cls='') {
+            return `w-full bg-[#0D0D0D] border border-white/8 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#34B27B]/40 transition-colors ${cls}`;
+        }
+        function _ta(rows=2, cls='') {
+            return `w-full bg-[#0D0D0D] border border-white/8 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#34B27B]/40 transition-colors resize-none ${cls}`;
+        }
+
+        function _wsStep1() {
+            const d = rcaWs.defect;
+            const sevMap = { Critical:'border-2 border-red-400 bg-red-500/20 text-red-300', Major:'border-2 border-orange-400 bg-orange-500/20 text-orange-300', Minor:'border-2 border-green-400 bg-green-500/20 text-green-300' };
+            const sevOff = 'border border-white/10 bg-white/5 text-white/50';
+
+            // Mode toggle header
+            const toggle = `<div class="flex rounded-lg overflow-hidden border border-white/8 mb-1">
+                <button onclick="rcaWsSetMode('manual')" class="flex-1 py-2 text-xs font-bold transition-all
+                    ${rcaWs.mode==='manual' ? 'bg-[#34B27B]/20 text-[#34B27B]' : 'bg-white/3 text-white/30 hover:bg-white/8'}">
+                    ✏ Manual Entry
+                </button>
+                <button onclick="rcaWsSetMode('ai')" class="flex-1 py-2 text-xs font-bold transition-all
+                    ${rcaWs.mode==='ai' ? 'bg-[#34B27B]/20 text-[#34B27B]' : 'bg-white/3 text-white/30 hover:bg-white/8'}">
+                    ✨ AI Auto-Analysis
+                </button>
+            </div>`;
+
+            if (rcaWs.mode === 'ai') {
+                const fileBanner = rcaWs.uploadedFileName ? `
+                    <div class="flex items-center gap-2 bg-[#34B27B]/8 border border-[#34B27B]/20 rounded-lg px-3 py-2">
+                        <span class="text-[#34B27B] text-xs">📎</span>
+                        <span class="text-[10px] text-[#34B27B] font-mono flex-1 truncate">${rcaWs.uploadedFileName}</span>
+                        <button onclick="rcaWsClearUpload()" class="text-[10px] text-white/30 hover:text-white/60 transition-all leading-none">✕</button>
+                    </div>` : '';
+                return `<div class="space-y-3">
+                    ${toggle}
+                    ${fileBanner}
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="text-[10px] text-white/40 uppercase tracking-widest">Defect Document</label>
+                            <label class="flex items-center gap-1 cursor-pointer text-[10px] text-white/40 hover:text-[#34B27B] transition-all">
+                                <span>📎 Upload file</span>
+                                <input type="file" accept=".txt,.csv,.log,.md,.json,.xlsx,.xls" class="hidden" onchange="rcaWsHandleFile(this)">
+                            </label>
+                        </div>
+                        <textarea id="ws-upload-text" rows="9" placeholder="Paste defect report, quality log, NCR, inspection notes, production data…&#10;Or upload a .csv · .xlsx · .txt · .log file →"
+                            class="${_ta(9)}">${rcaWs.uploadedText}</textarea>
+                        <p class="text-[10px] text-white/20 mt-1">Accepts .txt · .csv · .xlsx · .xls · .log · .json · .md &nbsp;·&nbsp; Gemini will auto-generate the full RCA.</p>
+                    </div>
+                    <button onclick="rcaWsAutoAnalyse()"
+                        class="w-full py-2.5 rounded-lg bg-[#34B27B] hover:bg-[#2d9a68] text-black text-xs font-bold uppercase tracking-wide transition-all glow-border">
+                        ✨ ANALYSE WITH AI →
+                    </button>
+                    <p class="text-[10px] text-white/20 text-center">🔒 Sent directly to Google Gemini · Not stored on any server</p>
+                </div>`;
+            }
+
+            return `<div class="space-y-5">
+                ${toggle}
+                <p class="text-xs text-white/40">Define the defect precisely before you start asking Why. A vague problem statement leads to a vague root cause.</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-1.5">Defect ID</label>
+                        <input id="ws-id" value="${d.id}" placeholder="e.g. DL-008" class="${_inp()}">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-1.5">Detection Date</label>
+                        <input id="ws-date" type="date" value="${d.date}" class="${_inp()}">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-1.5">Defect Description <span class="text-red-400">*</span></label>
+                    <textarea id="ws-desc" rows="3" placeholder="What failed? Where? When? How many units affected? Do NOT state a cause here." class="${_ta(3)}">${d.description}</textarea>
+                </div>
+                <div>
+                    <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-1.5">Line / Process</label>
+                    <input id="ws-line" value="${d.line}" placeholder="e.g. Panel Line 3 — Paint → Assembly" class="${_inp()}">
+                </div>
+                <div>
+                    <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-2">Severity</label>
+                    <div class="flex gap-3">
+                        ${['Critical','Major','Minor'].map(s => `
+                        <button id="ws-sev-${s}" onclick="rcaWsSetSev('${s}')" class="flex-1 py-2.5 rounded-lg text-sm transition-all ${d.severity===s ? sevMap[s] : sevOff}">
+                            ${s==='Critical'?'🔴':s==='Major'?'🟠':'🟢'} ${s}
+                        </button>`).join('')}
+                    </div>
+                </div>
+                <div class="bg-orange-500/5 border border-orange-500/15 rounded-lg p-3">
+                    <p class="text-[10px] text-orange-300/60">💡 Good description: <em>"Earth continuity >0.1Ω on 14 panels from Line 3, batch #221, detected at final QC 2026-05-15."</em><br>Bad: <em>"Wiring issue."</em></p>
+                </div>
+            </div>`;
+        }
+
+        function _wsStep2() {
+            const desc = rcaWs.defect.description || 'the defect';
+            const shortDesc = desc.length>70 ? desc.slice(0,70)+'…' : desc;
+            const finalWhy = rcaWs.whys.filter(Boolean).pop() || '';
+            return `<div class="space-y-0">
+                <p class="text-xs text-white/40 mb-4">Ask "Why?" 5 times. Each answer becomes the subject of the next question. Stop only when you reach something you can permanently fix.</p>
+                ${rcaWs.whys.map((ans,i) => {
+                    const prevAns = i===0 ? shortDesc : (rcaWs.whys[i-1]||'…').slice(0,65)+(((rcaWs.whys[i-1]||'').length>65)?'…':'');
+                    const q = i===0 ? `WHY 1 &mdash; Why did <em>${shortDesc}</em> occur?` : `WHY ${i+1} &mdash; Why <em>${prevAns}</em>?`;
+                    return `<div class="relative pl-9 pb-4">
+                        <div class="absolute left-0 top-0 flex flex-col items-center h-full">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0
+                                ${ans.trim() ? 'bg-[#34B27B] text-black' : 'bg-white/10 text-white/40'}">${i+1}</div>
+                            ${i<4?'<div class="w-px flex-1 bg-white/10 mt-1"></div>':''}
+                        </div>
+                        <label id="ws-why-lbl-${i}" class="text-[10px] text-white/40 block mb-1.5">${q}</label>
+                        <textarea id="ws-why-${i}" rows="2" placeholder="Why ${i+1}…" oninput="rcaWsWhyInput(${i})"
+                            class="${_ta(2)}">${ans}</textarea>
+                    </div>`;
+                }).join('')}
+                <div id="ws-why-rc-box" style="display:${finalWhy?'block':'none'}" class="mt-2 p-3 bg-emerald-500/10 border border-emerald-500/25 rounded-lg">
+                    <p class="text-[10px] text-emerald-400/70 uppercase tracking-widest font-bold mb-1">Root Cause Identified</p>
+                    <p id="ws-why-rc-txt" class="text-sm text-white">${finalWhy}</p>
+                </div>
+                <div class="mt-3 p-3 bg-white/3 border border-white/5 rounded-lg">
+                    <p class="text-[10px] text-white/25">⚠ If Why 5 points to a <em>person</em>, you have not gone deep enough. Ask: "Why were they able to make that mistake?"</p>
+                </div>
+            </div>`;
+        }
+
+        function _wsStep3() {
+            const cats = [
+                { k:'Man',         icon:'👤', label:'Man',         cls:'border-blue-500/25 bg-blue-500/5',   lbl:'text-blue-300',   hint:'Training gaps, fatigue, skill, operator mistake enabled by system' },
+                { k:'Machine',     icon:'⚙',  label:'Machine',     cls:'border-slate-500/25 bg-slate-500/5', lbl:'text-slate-300',  hint:'Uncalibrated tool, worn jig, maintenance gap, fixture defect' },
+                { k:'Material',    icon:'📦', label:'Material',    cls:'border-amber-500/25 bg-amber-500/5', lbl:'text-amber-300',  hint:'Wrong BOM rev, incoming quality, handling damage, wrong spec' },
+                { k:'Method',      icon:'📋', label:'Method',      cls:'border-orange-500/25 bg-orange-500/5',lbl:'text-orange-300',hint:'Missing SOP step, wrong procedure, no inspection checkpoint' },
+                { k:'Environment', icon:'🌡', label:'Environment', cls:'border-emerald-500/25 bg-emerald-500/5',lbl:'text-emerald-300',hint:'Temperature, humidity, vibration, ESD, contamination' },
+                { k:'Measurement', icon:'📏', label:'Measurement', cls:'border-violet-500/25 bg-violet-500/5',lbl:'text-violet-300',hint:'No audit log, wrong gauge, measurement system error' },
+            ];
+            const desc = (rcaWs.defect.description||'Defect').slice(0,50)+(rcaWs.defect.description.length>50?'…':'');
+            return `<div class="space-y-4">
+                <p class="text-xs text-white/40">For each category, list any factor that <em>could have contributed</em> to the defect. Leave categories empty if no evidence supports them.</p>
+                <div class="flex items-center gap-2 my-3">
+                    <div class="flex-1 h-px bg-white/10"></div>
+                    <div class="flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 rounded-lg px-4 py-1.5">
+                        <span>🎯</span><span class="text-sm font-bold text-orange-300">${desc}</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    ${cats.map(c => `
+                    <div class="border rounded-lg p-3 ${c.cls}">
+                        <div class="flex items-center gap-1.5 mb-2">
+                            <span>${c.icon}</span>
+                            <span class="text-xs font-bold uppercase tracking-wide ${c.lbl}">${c.label}</span>
+                        </div>
+                        <textarea id="ws-fish-${c.k}" rows="2" placeholder="${c.hint}"
+                            class="w-full bg-[#0D0D0D] border border-white/8 rounded-md px-2 py-1.5 text-xs text-white placeholder-white/20 focus:outline-none focus:border-[#34B27B]/30 resize-none transition-colors">${rcaWs.fishbone[c.k]}</textarea>
+                    </div>`).join('')}
+                </div>
+                <div class="p-3 bg-white/3 border border-white/5 rounded-lg">
+                    <p class="text-[10px] text-white/25">💡 The most common root causes in panel manufacturing come from <strong class="text-white/40">Method</strong> (missing SOP step) and <strong class="text-white/40">Machine</strong> (calibration lapse). Fill those two first.</p>
+                </div>
+            </div>`;
+        }
+
+        function _wsStep4() {
+            const rc = rcaWs.rc;
+            const finalWhy = rcaWs.whys.filter(Boolean).pop() || '';
+            const ai = rcaWs.aiAnalysis;
+            const loading = rcaWs.aiLoading;
+
+            // Build AI panel HTML
+            let aiPanel = '';
+            if (loading) {
+                aiPanel = `<div class="bg-[#34B27B]/8 border border-[#34B27B]/20 rounded-xl p-4 flex items-center gap-3">
+                    <div class="w-6 h-6 rounded-full border-2 border-[#34B27B] border-t-transparent animate-spin flex-shrink-0"></div>
+                    <div><p class="text-xs font-bold text-[#34B27B]">Gemini is analysing your 5 Whys + Fishbone…</p>
+                    <p class="text-[10px] text-white/30">Identifying root causes, gaps and corrective actions</p></div>
+                </div>`;
+            } else if (ai && ai.error) {
+                aiPanel = `<div class="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                    <p class="text-[10px] text-red-400">⚠ Gemini unavailable: ${ai.error}</p>
+                    <button onclick="rcaWs.aiLoading=true;_wsRender();_wsCallGemini().then(()=>{rcaWs.aiLoading=false;_wsRender();})"
+                        class="mt-2 text-[10px] text-white/40 hover:text-white/60 underline">Retry</button>
+                </div>`;
+            } else if (ai) {
+                const confColor = ai.confidence==='High' ? 'emerald' : ai.confidence==='Medium' ? 'amber' : 'red';
+                const altList = (ai.additionalRootCauses||[]).map(c=>`<li class="text-xs text-white/60 leading-relaxed">${c}</li>`).join('');
+                const gapList = (ai.gaps||[]).map(g=>`<li class="text-[10px] text-amber-300/70">${g}</li>`).join('');
+                aiPanel = `
+                <div class="bg-[#11181C] border border-[#34B27B]/15 glow-border rounded-xl overflow-hidden">
+                    <div class="flex items-center gap-2 px-4 py-2.5 border-b border-[#34B27B]/10 bg-[#34B27B]/5">
+                        <span class="text-sm">✨</span>
+                        <span class="text-xs font-bold text-[#34B27B] uppercase tracking-widest">Gemini AI Root Cause Analysis</span>
+                        <span class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full border
+                            ${confColor==='emerald'?'bg-emerald-500/15 border-emerald-500/30 text-emerald-400':confColor==='amber'?'bg-amber-500/15 border-amber-500/30 text-amber-400':'bg-red-500/15 border-red-500/30 text-red-400'}">
+                            ${ai.confidence} confidence
+                        </span>
+                    </div>
+                    <div class="p-4 space-y-4">
+                        <!-- Primary root cause -->
+                        <div class="bg-[#34B27B]/8 border border-[#34B27B]/20 rounded-lg p-3">
+                            <p class="text-[10px] text-[#34B27B]/70 font-bold uppercase tracking-widest mb-1.5">Most Likely Root Cause</p>
+                            <p class="text-sm text-white font-medium">${ai.mostLikelyRootCause||'—'}</p>
+                            ${ai.rootCauseType ? `<span class="inline-block mt-2 text-[10px] bg-[#34B27B]/15 border border-[#34B27B]/25 text-[#34B27B] px-2 py-0.5 rounded">Type: ${ai.rootCauseType}</span>` : ''}
+                        </div>
+                        ${altList ? `<div>
+                            <p class="text-[10px] text-white/30 uppercase tracking-widest mb-1.5">Other Possible Root Causes</p>
+                            <ul class="space-y-1.5 list-disc list-inside">${altList}</ul>
+                        </div>` : ''}
+                        <div class="grid grid-cols-2 gap-3">
+                            ${ai.physicalCause ? `<div class="bg-[#0D0D0D] border border-white/8 rounded-lg p-3">
+                                <p class="text-[10px] text-white/30 mb-1">Physical Cause</p>
+                                <p class="text-xs text-white/70">${ai.physicalCause}</p>
+                            </div>` : ''}
+                            ${ai.systemicCause ? `<div class="bg-[#0D0D0D] border border-white/8 rounded-lg p-3">
+                                <p class="text-[10px] text-white/30 mb-1">Systemic Cause</p>
+                                <p class="text-xs text-white/70">${ai.systemicCause}</p>
+                            </div>` : ''}
+                        </div>
+                        ${ai.suggestedCorrectiveAction ? `<div class="bg-emerald-500/8 border border-emerald-500/20 rounded-lg p-3">
+                            <p class="text-[10px] text-emerald-400/70 font-bold uppercase tracking-widest mb-1">Suggested Corrective Action</p>
+                            <p class="text-xs text-white/80">${ai.suggestedCorrectiveAction}</p>
+                        </div>` : ''}
+                        ${gapList ? `<div class="bg-amber-500/8 border border-amber-500/20 rounded-lg p-3">
+                            <p class="text-[10px] text-amber-400/70 font-bold uppercase tracking-widest mb-1.5">⚠ Analysis Gaps</p>
+                            <ul class="space-y-1 list-disc list-inside">${gapList}</ul>
+                        </div>` : ''}
+                        <p class="text-[10px] text-white/20">Fields below are pre-filled from AI suggestions — review and adjust before generating the report.</p>
+                    </div>
+                </div>`;
+            }
+
+            const types = [
+                { k:'Process',   icon:'📋', desc:'A step is missing, wrong, or not enforced' },
+                { k:'Human',     icon:'👤', desc:'Training gap or no error-proofing (go deeper)' },
+                { k:'Equipment', icon:'⚙',  desc:'Tool out of calibration, worn, or maintenance gap' },
+                { k:'Design',    icon:'📐', desc:'Spec or engineering document is incorrect' },
+            ];
+            return `<div class="space-y-5">
+                ${aiPanel}
+                <p class="text-xs text-white/40">Classify the root cause and define your corrective action. The action must address the <em>systemic</em> cause — fixing only the physical symptom will cause recurrence.</p>
+                <div>
+                    <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-2">Root Cause Type</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        ${types.map(t => `
+                        <button id="ws-rc-type-${t.k}" onclick="rcaWsSetType('${t.k}')"
+                            class="text-left p-3 rounded-lg border transition-all
+                            ${rc.type===t.k ? 'bg-[#34B27B]/15 border-[#34B27B]/50 text-[#34B27B]' : 'bg-white/5 border-white/8 text-white/50 hover:bg-white/8'}">
+                            <div class="flex items-center gap-2 mb-0.5"><span>${t.icon}</span><span class="text-xs font-bold">${t.k}</span></div>
+                            <p class="text-[10px] opacity-70">${t.desc}</p>
+                        </button>`).join('')}
+                    </div>
+                </div>
+                <div id="ws-human-warn" style="display:${rc.type==='Human'?'block':'none'}"
+                    class="bg-red-500/10 border border-red-500/25 rounded-lg p-3">
+                    <p class="text-[10px] text-red-400">⚠ <strong>Human error is always a symptom, never the root cause.</strong> Ask: what process, equipment, or design condition allowed this human to make that error?</p>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-1.5">Physical Cause <span class="text-white/20 normal-case not-italic">(what actually failed)</span></label>
+                        <textarea id="ws-rc-physical" rows="2" placeholder="e.g. Paint on earth stud mating face caused resistance >0.1Ω"
+                            class="${_ta(2)}">${rc.physical || finalWhy}</textarea>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-1.5">Systemic / Latent Cause <span class="text-white/20 normal-case not-italic">(why the system allowed it)</span></label>
+                        <textarea id="ws-rc-systemic" rows="2" placeholder="e.g. No masking step in paint SOP — panel painted after stud install, no checkpoint"
+                            class="${_ta(2)}">${rc.systemic}</textarea>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-1.5">Corrective Action <span class="text-red-400">*</span> <span class="text-white/20 normal-case not-italic">(must fix systemic cause, not physical)</span></label>
+                        <textarea id="ws-rc-action" rows="3" placeholder="e.g. Add masking step to paint SOP §4.3 with mandatory sign-off. Install earth continuity audit at QC station."
+                            class="${_ta(3)}">${rc.action}</textarea>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-1.5">Owner</label>
+                        <input id="ws-rc-owner" value="${rc.owner}" placeholder="Name / Role" class="${_inp()}">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-white/40 uppercase tracking-widest block mb-1.5">Target Date</label>
+                        <input id="ws-rc-date" type="date" value="${rc.targetDate}" class="${_inp()}">
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function _wsStep5() {
+            const d = rcaWs.defect;
+            const rc = rcaWs.rc;
+            const whysFilled = rcaWs.whys.filter(Boolean);
+            const fishEntries = Object.entries(rcaWs.fishbone).filter(([,v]) => v.trim());
+            const finalWhy = whysFilled[whysFilled.length-1] || '';
+            const sevColor = {Critical:'red',Major:'orange',Minor:'green'}[d.severity]||'orange';
+            const checks = [
+                ['Physical cause identified',            !!rc.physical],
+                ['5 Whys chain ≥ 3 levels deep',        whysFilled.length >= 3],
+                ['Fishbone: at least one factor listed', fishEntries.length > 0],
+                ['Systemic / latent cause identified',   !!rc.systemic],
+                ['Corrective action defined',            !!rc.action],
+                ['Root cause type is not Human',         rc.type !== 'Human'],
+                ['Owner assigned',                       !!rc.owner],
+                ['Target date set',                      !!rc.targetDate],
+            ];
+            const score = checks.filter(([,p])=>p).length;
+            const pct = Math.round(score/checks.length*100);
+
+            return `<div class="space-y-4" id="ws-report-content">
+                <!-- Header -->
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap mb-1">
+                            ${d.id ? `<span class="text-[10px] bg-white/10 px-2 py-0.5 rounded font-mono text-white/60">${d.id}</span>` : ''}
+                            <span class="text-[10px] px-2 py-0.5 rounded font-bold border
+                                ${sevColor==='red'?'bg-red-500/20 border-red-500/30 text-red-300':sevColor==='orange'?'bg-orange-500/20 border-orange-500/30 text-orange-300':'bg-green-500/20 border-green-500/30 text-green-300'}">
+                                ${d.severity}
+                            </span>
+                            <span class="text-[10px] text-white/30">${d.line||''} ${d.date ? '· '+d.date : ''}</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-white">RCA Report</h3>
+                    </div>
+                    <button onclick="rcaWsPrint()" class="text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded-lg text-white/50 font-bold transition-all flex-shrink-0">🖨 Print</button>
+                </div>
+
+                <!-- Problem -->
+                <div class="bg-white/3 border border-white/10 rounded-lg p-4">
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest mb-1">Problem Statement</p>
+                    <p class="text-sm text-white">${d.description || '—'}</p>
+                </div>
+
+                <!-- 5 Whys -->
+                <div class="bg-white/3 border border-white/10 rounded-lg p-4">
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest mb-3">5 Whys Chain</p>
+                    <div class="space-y-2">
+                        ${rcaWs.whys.map((w,i) => w ? `
+                        <div class="flex gap-3">
+                            <span class="text-[10px] font-bold text-white/25 w-12 flex-shrink-0 pt-0.5">WHY ${i+1}</span>
+                            <span class="text-xs text-white/75">${w}</span>
+                        </div>` : '').filter(Boolean).join('<div class="ml-14 text-white/10 text-[10px] leading-none">↓</div>')}
+                        ${finalWhy ? `<div class="pt-3 border-t border-white/10 mt-1"><span class="text-[10px] text-emerald-400/70 font-bold uppercase tracking-widest">Root Cause → </span><span class="text-xs text-emerald-300">${finalWhy}</span></div>` : ''}
+                    </div>
+                </div>
+
+                <!-- Fishbone -->
+                ${fishEntries.length > 0 ? `
+                <div class="bg-white/3 border border-white/10 rounded-lg p-4">
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest mb-3">Fishbone — Contributing Factors</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        ${fishEntries.map(([cat,val]) => `
+                        <div class="bg-white/3 rounded p-2">
+                            <p class="text-[10px] text-white/40 font-bold mb-0.5">${cat}</p>
+                            <p class="text-xs text-white/70">${val}</p>
+                        </div>`).join('')}
+                    </div>
+                </div>` : ''}
+
+                <!-- Root Cause + Action -->
+                <div class="bg-[#34B27B]/5 border border-[#34B27B]/20 rounded-lg p-4 space-y-3">
+                    <p class="text-[10px] text-[#34B27B]/70 uppercase tracking-widest font-bold">Root Cause Type: ${rc.type}</p>
+                    ${rc.physical  ? `<div><p class="text-[10px] text-white/30 mb-0.5">Physical Cause</p><p class="text-xs text-white/80">${rc.physical}</p></div>` : ''}
+                    ${rc.systemic  ? `<div><p class="text-[10px] text-white/30 mb-0.5">Systemic Cause</p><p class="text-xs text-white/80">${rc.systemic}</p></div>` : ''}
+                    ${rc.action    ? `<div class="pt-3 border-t border-[#34B27B]/15"><p class="text-[10px] text-white/30 mb-0.5">Corrective Action</p><p class="text-xs text-white font-semibold">${rc.action}</p></div>` : ''}
+                    ${(rc.owner||rc.targetDate) ? `<div class="flex gap-4 text-[10px]">
+                        ${rc.owner ? `<span class="text-white/30">Owner: <span class="text-white/60">${rc.owner}</span></span>` : ''}
+                        ${rc.targetDate ? `<span class="text-white/30">Due: <span class="text-white/60">${rc.targetDate}</span></span>` : ''}
+                    </div>` : ''}
+                </div>
+
+                <!-- Completeness score -->
+                <div class="bg-white/3 border border-white/10 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-[10px] text-white/30 uppercase tracking-widest">RCA Completeness</p>
+                        <span class="text-sm font-bold ${pct>=75?'text-emerald-400':pct>=50?'text-orange-400':'text-red-400'}">${pct}%</span>
+                    </div>
+                    <div class="w-full bg-white/10 rounded-full h-1.5 mb-3">
+                        <div class="h-1.5 rounded-full transition-all ${pct>=75?'bg-emerald-500':pct>=50?'bg-orange-500':'bg-red-500'}" style="width:${pct}%"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1">
+                        ${checks.map(([lbl,pass]) => `
+                        <div class="flex items-center gap-1.5">
+                            <span class="${pass?'text-emerald-400':'text-red-400'} text-[10px]">${pass?'✓':'✗'}</span>
+                            <span class="text-[10px] ${pass?'text-white/50':'text-red-400/60'}">${lbl}</span>
+                        </div>`).join('')}
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="rcaWsBack()" class="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/8 text-white/40 text-xs font-bold transition-all">← Edit Action</button>
+                    <button onclick="openRCAWorksheet()" class="flex-1 py-2.5 rounded-lg bg-[#34B27B] hover:bg-[#2d9a68] text-black text-xs font-bold uppercase tracking-wide glow-border transition-all">+ New RCA</button>
+                </div>
+            </div>`;
+        }
+
+        // ─── Auto-loading screen ─────────────────────────────────────────
+        // Called by _wsRender when autoLoading = true; also used as step 6 error state
+        function _wsStepAIReview() {
+            if (rcaWs.autoLoading) {
+                return `<div class="flex flex-col items-center justify-center gap-5 py-12">
+                    <div class="relative">
+                        <div class="w-16 h-16 rounded-full border-2 border-[#34B27B]/20"></div>
+                        <div class="absolute inset-0 w-16 h-16 rounded-full border-2 border-t-[#34B27B] border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+                        <span class="absolute inset-0 flex items-center justify-center text-2xl">✨</span>
+                    </div>
+                    <div class="text-center space-y-1.5">
+                        <p class="text-sm font-bold text-[#34B27B] outfit">Gemini is reading your document…</p>
+                        <p class="text-xs text-white/30">Generating 5 Whys · Fishbone · Root Cause</p>
+                    </div>
+                    <div class="flex gap-1.5 mt-2">
+                        ${[0,1,2].map(i=>`<div class="w-1.5 h-1.5 rounded-full bg-[#34B27B] animate-bounce" style="animation-delay:${i*150}ms"></div>`).join('')}
+                    </div>
+                </div>`;
+            }
+
+            const ai = rcaWs.aiAnalysis;
+            if (!ai || ai.error) {
+                return `<div class="space-y-4">
+                    <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                        <p class="text-sm font-bold text-red-400 mb-1">⚠ Analysis failed</p>
+                        <p class="text-xs text-white/50">${ai?.error || 'Unknown error'}</p>
+                    </div>
+                    <button onclick="rcaWs.step=1;rcaWs.mode='ai';_wsRender()"
+                        class="w-full py-3 rounded-lg bg-[#34B27B] hover:bg-[#2d9a68] text-black text-sm font-bold uppercase tracking-wide glow-border transition-all">← Try Again</button>
+                </div>`;
+            }
+
+            const confColor = ai.confidence==='High'?'emerald':ai.confidence==='Medium'?'amber':'red';
+            const whysFilled = rcaWs.whys.filter(Boolean);
+            const fishEntries = Object.entries(rcaWs.fishbone).filter(([,v])=>v.trim());
+
+            return `<div class="space-y-4">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-sm">✨</span>
+                    <span class="text-sm font-bold text-white outfit">AI Analysis Complete</span>
+                    <span class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded border
+                        ${confColor==='emerald'?'bg-emerald-500/15 border-emerald-500/30 text-emerald-400':confColor==='amber'?'bg-amber-500/15 border-amber-500/30 text-amber-400':'bg-red-500/15 border-red-500/30 text-red-400'}">
+                        ${ai.confidence} confidence
+                    </span>
+                </div>
+
+                ${ai.summary ? `<div class="bg-[#34B27B]/5 border border-[#34B27B]/15 glow-border rounded-xl p-4">
+                    <p class="text-[10px] text-[#34B27B]/70 font-bold uppercase tracking-widest mb-2">Executive Summary</p>
+                    <p class="text-xs text-white/80 leading-relaxed">${ai.summary}</p>
+                </div>` : ''}
+
+                <!-- Defect extracted -->
+                <div class="bg-[#11181C] border border-white/8 glow-border rounded-xl p-4">
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest mb-2">Extracted Defect</p>
+                    <div class="flex items-start gap-3">
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-white">${rcaWs.defect.description || '—'}</p>
+                            <div class="flex gap-3 mt-1.5 text-[10px] text-white/30 flex-wrap">
+                                ${rcaWs.defect.id ? `<span>ID: <span class="text-white/50">${rcaWs.defect.id}</span></span>` : ''}
+                                ${rcaWs.defect.line ? `<span>Line: <span class="text-white/50">${rcaWs.defect.line}</span></span>` : ''}
+                                ${rcaWs.defect.date ? `<span>Date: <span class="text-white/50">${rcaWs.defect.date}</span></span>` : ''}
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold px-2 py-1 rounded border flex-shrink-0
+                            ${rcaWs.defect.severity==='Critical'?'bg-red-500/20 border-red-500/30 text-red-300':rcaWs.defect.severity==='Minor'?'bg-green-500/20 border-green-500/30 text-green-300':'bg-orange-500/20 border-orange-500/30 text-orange-300'}">
+                            ${rcaWs.defect.severity}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Most Likely Root Cause banner -->
+                <div class="bg-[#34B27B]/8 border border-[#34B27B]/20 rounded-xl p-4">
+                    <p class="text-[10px] text-[#34B27B]/70 font-bold uppercase tracking-widest mb-1.5">Most Likely Root Cause</p>
+                    <p class="text-sm text-white font-medium">${ai.mostLikelyRootCause || '—'}</p>
+                    ${ai.rootCauseType ? `<span class="inline-block mt-2 text-[10px] bg-[#34B27B]/15 border border-[#34B27B]/25 text-[#34B27B] px-2 py-0.5 rounded">Type: ${ai.rootCauseType}</span>` : ''}
+                    ${(ai.additionalRootCauses||[]).length ? `
+                    <div class="mt-3 pt-3 border-t border-[#34B27B]/15">
+                        <p class="text-[10px] text-white/25 mb-1.5">Also possible:</p>
+                        <ul class="space-y-1">${(ai.additionalRootCauses||[]).map(c=>`<li class="text-xs text-white/50">• ${c}</li>`).join('')}</ul>
+                    </div>` : ''}
+                </div>
+
+                <!-- 5 Whys -->
+                <div class="bg-[#11181C] border border-white/8 glow-border rounded-xl p-4">
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest mb-3">Generated 5 Whys Chain</p>
+                    <div class="space-y-2">
+                        ${whysFilled.map((w,i)=>`
+                        <div class="flex gap-3 items-start">
+                            <span class="text-[10px] font-bold text-white/25 w-12 flex-shrink-0 pt-0.5">WHY ${rcaWs.whys.indexOf(w, i === 0 ? 0 : rcaWs.whys.indexOf(whysFilled[i-1]||'',0)+1)+1}</span>
+                            <span class="text-xs text-white/75">${w}</span>
+                        </div>`).join('<div class="ml-14 text-white/10 text-[10px]">↓</div>')}
+                    </div>
+                </div>
+
+                <!-- Fishbone -->
+                ${fishEntries.length ? `<div class="bg-[#11181C] border border-white/8 glow-border rounded-xl p-4">
+                    <p class="text-[10px] text-white/30 uppercase tracking-widest mb-3">Fishbone — Contributing Factors</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        ${fishEntries.map(([cat,val])=>`<div class="bg-[#0D0D0D] border border-white/8 rounded-lg p-2.5">
+                            <p class="text-[10px] text-white/40 font-bold mb-0.5">${cat}</p>
+                            <p class="text-xs text-white/65">${val}</p>
+                        </div>`).join('')}
+                    </div>
+                </div>` : ''}
+
+                <!-- Corrective Action -->
+                ${ai.suggestedCorrectiveAction ? `<div class="bg-emerald-500/8 border border-emerald-500/20 rounded-xl p-4">
+                    <p class="text-[10px] text-emerald-400/70 font-bold uppercase tracking-widest mb-1.5">Suggested Corrective Action</p>
+                    <p class="text-xs text-white/80">${ai.suggestedCorrectiveAction}</p>
+                </div>` : ''}
+
+                <!-- Gaps -->
+                ${(ai.gaps||[]).length ? `<div class="bg-amber-500/8 border border-amber-500/20 rounded-xl p-3">
+                    <p class="text-[10px] text-amber-400/70 font-bold uppercase tracking-widest mb-1.5">⚠ Assumptions / Gaps</p>
+                    <ul class="space-y-0.5">${(ai.gaps||[]).map(g=>`<li class="text-xs text-white/45">• ${g}</li>`).join('')}</ul>
+                </div>` : ''}
+
+                <!-- Actions -->
+                <div class="grid grid-cols-3 gap-2 pt-1">
+                    <button onclick="rcaWs.step=1;rcaWs.mode='ai';_wsRender()"
+                        class="py-2.5 rounded-lg bg-white/5 hover:bg-white/8 border border-white/8 text-white/40 text-xs font-bold transition-all">← Re-upload</button>
+                    <button onclick="rcaWs.step=2;_wsRender()"
+                        class="py-2.5 rounded-lg bg-white/5 hover:bg-white/8 border border-white/8 text-[#34B27B] text-xs font-bold transition-all">✏ Edit Steps</button>
+                    <button onclick="rcaWs.step=5;_wsRender()"
+                        class="py-2.5 rounded-lg bg-[#34B27B] hover:bg-[#2d9a68] text-black text-xs font-bold uppercase tracking-wide glow-border transition-all">📋 Full Report →</button>
+                </div>
+            </div>`;
+        }
+        // ═══════════════════════════════════════════════════════════════════
+
+        window.runRCAAnalysis = async function() {
+            const defectTable = document.getElementById('rca-defect-table').value;
+            const errEl = document.getElementById('rca-wizard-error');
+            if (!defectTable) { errEl.textContent = 'Please select a defect table.'; errEl.classList.remove('hidden'); return; }
+            errEl.classList.add('hidden');
+
+            const config = {
+                defectTable,
+                defectTsCol:    document.getElementById('rca-defect-ts').value    || null,
+                defectCountCol: document.getElementById('rca-defect-count').value || null,
+                defectTypeCol:  document.getElementById('rca-defect-type').value  || null,
+                capaTable:      document.getElementById('rca-capa-table').value   || null,
+                capaTsCol:      document.getElementById('rca-capa-ts').value      || null,
+                capaStatusCol:  document.getElementById('rca-capa-status').value  || null,
+                capaTypeCol:    document.getElementById('rca-capa-type').value    || null,
+                factorTables: [...document.querySelectorAll('#rca-factor-list > div')].map(row => ({
+                    name:  row.querySelector('.rca-factor-table-sel').value,
+                    tsCol: row.querySelector('.rca-factor-ts-sel').value,
+                })).filter(ft => ft.name && ft.tsCol),
+            };
+
+            closeRCAWizard();
+
+            // Show results modal with loading state
+            const resultsModal = document.getElementById('rcaResultsModal');
+            resultsModal.style.display = 'flex'; resultsModal.classList.remove('hidden');
+            document.getElementById('rca-results-body').innerHTML = `
+                <div class="text-center py-16">
+                    <div class="text-4xl mb-4 animate-spin inline-block">⚙</div>
+                    <p class="text-white/50 text-sm">Running statistical analysis…</p>
+                    <p class="text-white/20 text-xs mt-2">Pearson correlation · Z-score anomalies · CAPA KPIs</p>
+                </div>`;
+
+            try {
+                const results = await rcaAnalyzer.analyze(db, config);
+                _renderRCAResults(results);
+            } catch (e) {
+                document.getElementById('rca-results-body').innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-3xl mb-3">⚠️</div>
+                        <p class="text-red-400 text-sm font-bold">${e.message}</p>
+                        <p class="text-white/30 text-xs mt-2">Check your table/column mappings and try again.</p>
+                    </div>`;
+            }
+        };
+
+        /** Render the full RCA results into the modal body */
+        function _renderRCAResults(r) {
+            const s = r.defectSummary;
+            document.getElementById('rca-result-subtitle').textContent =
+                `${s.table} · ${s.totalRows.toLocaleString()} rows · ${s.totalDefects.toLocaleString()} total defects`;
+
+            const sev = { high: 'text-red-400 bg-red-500/10 border-red-500/20', medium: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20', low: 'text-green-400 bg-green-500/10 border-green-500/20' };
+
+            // ── Section helper ──────────────────────────────────────────────
+            const section = (title, icon, color, body) => `
+                <div class="bg-[#11181C] rounded-xl border border-white/5 overflow-hidden">
+                    <div class="px-4 py-3 border-b border-white/5 flex items-center gap-2">
+                        <span class="text-base">${icon}</span>
+                        <span class="text-[11px] font-bold uppercase tracking-widest ${color}">${title}</span>
+                    </div>
+                    <div class="p-4">${body}</div>
+                </div>`;
+
+            // ── Bar helper (inline horizontal bar) ─────────────────────────
+            const bar = (pct, color='bg-orange-500') => `
+                <div class="flex-1 bg-white/5 rounded-full h-2 overflow-hidden">
+                    <div class="${color} h-full rounded-full" style="width:${Math.min(100,Math.abs(pct))}%"></div>
+                </div>`;
+
+            let html = '';
+
+            // ── 1. Defect Overview ──────────────────────────────────────────
+            const topTypes = s.topDefectTypes.slice(0, 6);
+            const maxCount = topTypes[0]?.count || 1;
+            html += section('Defect Overview', '📊', 'text-orange-400',
+                `<div class="grid grid-cols-3 gap-3 mb-4">
+                    <div class="bg-black/30 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-orange-400 mono">${s.totalRows.toLocaleString()}</div>
+                        <div class="text-[9px] text-white/30 uppercase mt-0.5">Total Records</div>
+                    </div>
+                    <div class="bg-black/30 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-red-400 mono">${s.totalDefects.toLocaleString()}</div>
+                        <div class="text-[9px] text-white/30 uppercase mt-0.5">Total Defects</div>
+                    </div>
+                    <div class="bg-black/30 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-yellow-400 mono">${r.defectWindows.length}</div>
+                        <div class="text-[9px] text-white/30 uppercase mt-0.5">Spike Windows</div>
+                    </div>
+                </div>
+                ${topTypes.length ? `
+                <div class="text-[9px] text-white/30 uppercase mb-2">Top Defect Types</div>
+                <div class="space-y-1.5">
+                    ${topTypes.map(t => `
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-white/60 w-32 truncate" title="${t.name}">${t.name}</span>
+                        ${bar((t.count/maxCount)*100)}
+                        <span class="text-[10px] text-orange-400 mono w-10 text-right">${t.count}</span>
+                    </div>`).join('')}
+                </div>` : '<p class="text-[10px] text-white/30">No defect type column selected.</p>'}`
+            );
+
+            // ── 2. Defect Spike Windows ─────────────────────────────────────
+            if (r.defectWindows.length > 0) {
+                html += section('Defect Spike Windows', '⚡', 'text-red-400',
+                    `<p class="text-[10px] text-white/40 mb-3">Time periods with statistically anomalous defect counts (Z > 1.8σ above mean).</p>
+                    <div class="overflow-x-auto">
+                    <table class="w-full text-[10px] mono">
+                        <thead><tr class="text-white/30 uppercase border-b border-white/5">
+                            <th class="py-1.5 pr-4 text-left">Time Bucket</th>
+                            <th class="py-1.5 pr-4 text-right">Defect Count</th>
+                            <th class="py-1.5 text-right">Z-Score</th>
+                        </tr></thead>
+                        <tbody>${r.defectWindows.map(w => `
+                        <tr class="border-b border-white/5 hover:bg-white/5">
+                            <td class="py-1.5 pr-4 text-white/70">${w.time}</td>
+                            <td class="py-1.5 pr-4 text-right text-red-400 font-bold">${w.count.toLocaleString()}</td>
+                            <td class="py-1.5 text-right text-orange-400">${w.zscore}σ</td>
+                        </tr>`).join('')}</tbody>
+                    </table></div>`
+                );
+            }
+
+            // ── 3. Factor Correlation Analysis ──────────────────────────────
+            if (r.correlations.length > 0) {
+                const top10 = r.correlations.slice(0, 10);
+                html += section('Factor Correlation Analysis', '📈', 'text-blue-400',
+                    `<p class="text-[10px] text-white/40 mb-3">Pearson r between process/machine/operator factor values and defect count per time bucket. Closer to ±1.0 = stronger signal.</p>
+                    <div class="space-y-2">
+                    ${top10.map(c => {
+                        const pct = c.absR * 100;
+                        const barColor = c.absR > 0.7 ? 'bg-red-500' : c.absR > 0.4 ? 'bg-yellow-500' : 'bg-blue-500';
+                        const label = c.absR > 0.7 ? 'STRONG' : c.absR > 0.4 ? 'MODERATE' : 'WEAK';
+                        const labelColor = c.absR > 0.7 ? 'text-red-400' : c.absR > 0.4 ? 'text-yellow-400' : 'text-blue-400';
+                        const confColor = c.confidence === 'HIGH' ? 'text-green-400 border-green-500/30' : c.confidence === 'MEDIUM' ? 'text-yellow-400 border-yellow-500/30' : 'text-white/25 border-white/10';
+                        const dimmed = c.significant === false ? 'opacity-50' : '';
+                        return `
+                        <div class="bg-black/20 rounded-lg p-2.5 ${dimmed}">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="text-[10px] text-white/70 font-bold flex-1 truncate" title="${c.column}">${c.column}</span>
+                                <span class="text-[8px] border rounded px-1 py-0.5 font-bold ${confColor}">${c.confidence || 'LOW'}</span>
+                                <span class="text-[8px] ${labelColor} font-bold">${label}</span>
+                                <span class="text-[9px] text-white/30">[${c.sourceTable}]</span>
+                                <span class="text-[10px] mono font-bold text-white/80 w-16 text-right">r = ${c.pearsonR > 0 ? '+' : ''}${c.pearsonR.toFixed(3)}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                ${bar(pct, barColor)}
+                                <span class="text-[9px] text-white/30 w-24 text-right">R² ${(c.r2*100).toFixed(0)}% · n=${c.sampleSize}</span>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                    </div>
+                    ${r.categoricalCorrelations.length > 0 ? `
+                    <div class="mt-3 pt-3 border-t border-white/5">
+                        <div class="text-[9px] text-white/30 uppercase mb-2">Categorical Factors (most frequent before spikes)</div>
+                        ${r.categoricalCorrelations.slice(0,4).map(cc => `
+                        <div class="text-[10px] text-white/50 mb-1"><span class="text-blue-400">${cc.column}</span> [${cc.sourceTable}]: ${cc.topValues.map(([v,n])=>`<span class="text-white/70">${v}</span> (${n}×)`).join(', ')}</div>
+                        `).join('')}
+                    </div>` : ''}`
+                );
+            } else if (r.config.factorTables.length > 0) {
+                html += section('Factor Correlation Analysis', '📈', 'text-blue-400',
+                    '<p class="text-[10px] text-white/40">Insufficient overlapping time buckets between defect table and factor tables. Ensure timestamps share the same time range.</p>');
+            }
+
+            // ── 4. CAPA KPIs ───────────────────────────────────────────────
+            if (r.capaKPIs) {
+                const k = r.capaKPIs;
+                const kpiBox = (label, value, unit, color, sub) => `
+                    <div class="bg-black/30 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold ${color} mono">${value !== null ? value + unit : '—'}</div>
+                        <div class="text-[9px] text-white/30 uppercase mt-0.5">${label}</div>
+                        ${sub ? `<div class="text-[8px] text-white/20 mt-1">${sub}</div>` : ''}
+                    </div>`;
+                const statusColor = s => s === 'PASS' ? 'text-green-400' : s === 'WARNING' ? 'text-yellow-400' : s === 'FAIL' ? 'text-red-400' : 'text-white/30';
+                const statusBadge = (s, bench) => s ? `<span class="text-[8px] font-bold ${statusColor(s)}">${s}</span><span class="text-[8px] text-white/20 ml-0.5">bmk ${bench}</span>` : '';
+                const recColor = statusColor(k.recurrenceStatus);
+                const effColor = statusColor(k.effectivenessStatus);
+                const escColor = statusColor(k.escapeStatus);
+                const kpiBoxV2 = (label, value, unit, color, sub, status, bench) => `
+                    <div class="bg-black/30 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold ${color} mono">${value !== null ? value + unit : '—'}</div>
+                        <div class="text-[9px] text-white/30 uppercase mt-0.5">${label}</div>
+                        <div class="mt-1 flex items-center justify-center gap-1">${statusBadge(status, bench)}</div>
+                        ${sub ? `<div class="text-[8px] text-white/20 mt-0.5">${sub}</div>` : ''}
+                    </div>`;
+                html += section('CAPA Effectiveness KPIs', '🎯', 'text-yellow-400',
+                    `<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        ${kpiBoxV2('Recurrence Rate', k.recurrenceRate, '%', recColor, `${k.recurred}/${k.totalClosed} CAPAs`, k.recurrenceStatus, k.recurrenceBenchmark)}
+                        ${kpiBoxV2('Effectiveness', k.effectiveness, '%', effColor, 'Pre vs post defect rate', k.effectivenessStatus, k.effectivenessBenchmark)}
+                        ${kpiBoxV2('Escape Rate', k.escapeRate, '%', escColor, `${k.escapedCount} escapes`, k.escapeStatus, k.escapeBenchmark)}
+                        ${kpiBoxV2('Time to Contain', k.avgContainmentHours, 'h', statusColor(k.containmentStatus||''), `First defect → first CAPA`, k.containmentStatus, k.containmentBenchmark)}
+                    </div>
+                    <div class="mt-3 text-[9px] text-white/30 space-y-1">
+                        <p>Recurrence Rate = CAPAs where same defect type recurred within 30 days after closure</p>
+                        <p>Effectiveness = (defect rate before CAPA − after CAPA) / before × 100%</p>
+                        <p>Escape Rate = defects with "customer / field / warranty / recall" keywords / total defects</p>
+                    </div>`
+                );
+            }
+
+            // ── 5. Causal Chain ────────────────────────────────────────────
+            if (r.causalChain.length > 0) {
+                html += section('Causal Chain & Recommendations', '🔗', 'text-green-400',
+                    `<div class="space-y-3">
+                    ${r.causalChain.map(c => `
+                        <div class="flex gap-3">
+                            <div class="flex-shrink-0 w-6 h-6 rounded-full ${sev[c.severity]||sev.low} border flex items-center justify-center text-[10px] font-bold">${c.step}</div>
+                            <div class="flex-1">
+                                <div class="text-[11px] font-bold text-white/80">${c.finding}</div>
+                                <div class="text-[10px] text-white/40 mt-0.5">${c.details}</div>
+                                ${c.recommendation ? `<div class="text-[10px] text-green-400/70 mt-1">→ ${c.recommendation}</div>` : ''}
+                            </div>
+                        </div>`).join('')}
+                    </div>`
+                );
+            }
+
+            // ── 6. Preceding events ────────────────────────────────────────
+            if (r.precedingEvents && r.precedingEvents.length > 0) {
+                const evRows = r.precedingEvents.slice(0, 5);
+                html += section('Preceding Events (2h before spikes)', '⏱', 'text-purple-400',
+                    `<p class="text-[10px] text-white/40 mb-3">Events found in factor tables within 2 hours before each defect spike window.</p>
+                    ${evRows.map(e => `
+                    <div class="bg-black/20 rounded p-2.5 mb-2">
+                        <div class="text-[10px] font-bold text-yellow-400">Spike @ ${e.window.time} (${e.window.count} defects, ${e.window.zscore}σ) — from [${e.sourceTable}]</div>
+                        <div class="mt-1 space-y-0.5">
+                            ${e.precedingRows.slice(0,3).map(row => `
+                            <div class="text-[9px] text-white/40 mono">${JSON.stringify(row).slice(0,120)}…</div>`).join('')}
+                        </div>
+                    </div>`).join('')}`
+                );
+            }
+
+            // ── 7. Gemini AI Suggestions (populated async after render) ────
+            html += `
+                <div class="bg-[#11181C] rounded-xl border border-purple-500/20 overflow-hidden">
+                    <div class="px-4 py-3 border-b border-white/5 flex items-center gap-2">
+                        <span class="text-base">✨</span>
+                        <span class="text-[11px] font-bold uppercase tracking-widest text-purple-400">AI Suggestions</span>
+                        <span class="text-[9px] text-white/20 ml-auto">Powered by Gemini</span>
+                    </div>
+                    <div id="rca-ai-suggestions" class="p-4 space-y-2">
+                        <div class="flex items-center gap-2 text-white/30 text-[10px]">
+                            <span class="animate-spin">⏳</span> Analysing with Gemini…
+                        </div>
+                    </div>
+                </div>`;
+
+            document.getElementById('rca-results-body').innerHTML = html;
+
+            // ── AI Suggestions (async, non-blocking) ───────────────────────
+            _fetchAISuggestions(r);
+        }
+
+        async function _fetchAISuggestions(r) {
+            const container = document.getElementById('rca-ai-suggestions');
+            if (!container) return;
+
+            const ds = r.defectSummary;
+
+            // Top defect types
+            const topTypes = ds.topDefectTypes.slice(0, 3).map(t => `${t.name}×${t.count}`).join(', ') || 'N/A';
+
+            // Correlations: only statistically significant ones (p<=0.05), with confidence
+            const sigCorr = r.correlations.filter(c => c.significant !== false);
+            const lowConf = r.correlations.filter(c => c.significant === false).map(c => c.column).slice(0, 3).join(', ');
+            const topCorr = sigCorr.slice(0, 3).map(c =>
+                `${c.column}(r=${c.pearsonR > 0 ? '+' : ''}${c.pearsonR.toFixed(2)},n=${c.sampleSize},conf=${c.confidence})`
+            ).join('; ') || 'none';
+
+            // Worst defect spike
+            const worstSpike = r.defectWindows.length > 0
+                ? r.defectWindows.slice().sort((a,b) => b.zscore - a.zscore)[0]
+                : null;
+            const worstSpikeStr = worstSpike ? `${worstSpike.count} defects at ${worstSpike.time} (z=${worstSpike.zscore})` : 'none';
+
+            // CAPA KPIs with pass/fail status
+            let capaStr = 'no CAPA table';
+            let capaFailures = '';
+            if (r.capaKPIs) {
+                const k = r.capaKPIs;
+                capaStr = [
+                    `recurrence=${k.recurrenceRate !== null ? k.recurrenceRate + '%' : 'N/A'}(${k.recurrenceStatus||''})`,
+                    `effectiveness=${k.effectiveness !== null ? k.effectiveness + '%' : 'N/A'}(${k.effectivenessStatus||''})`,
+                    `escapeRate=${k.escapeRate}%(${k.escapeStatus||''})`,
+                    `containment=${k.avgContainmentHours !== null ? k.avgContainmentHours + 'h' : 'N/A'}(${k.containmentStatus||''})`,
+                ].join(', ');
+                capaFailures = [
+                    k.recurrenceStatus === 'FAIL'  ? `recurrence ${k.recurrenceRate}% exceeds benchmark ${k.recurrenceBenchmark}` : '',
+                    k.effectivenessStatus === 'FAIL'? `effectiveness ${k.effectiveness}% below benchmark ${k.effectivenessBenchmark}` : '',
+                    k.escapeStatus === 'FAIL'       ? `escapeRate ${k.escapeRate}% exceeds benchmark ${k.escapeBenchmark}` : '',
+                    k.containmentStatus === 'FAIL'  ? `containment ${k.avgContainmentHours}h exceeds benchmark ${k.containmentBenchmark}` : '',
+                ].filter(Boolean).join('; ') || 'none';
+            }
+
+            const payload = {
+                defectTable:    r.config.defectTable,
+                totalRows:      ds.totalRows,
+                totalDefects:   ds.totalDefects,
+                spikeWindows:   r.defectWindows.length,
+                worstSpike:     worstSpikeStr,
+                topDefectTypes: topTypes,
+                topCorrelations: topCorr,
+                lowConfCorr:    lowConf || 'none',
+                capaKPIs:       capaStr,
+                capaFailures:   capaFailures,
+            };
+
+            // Build the prompt (same logic as GeminiController.java)
+            const promptLines = [
+                'STRICT RULES (violating any rule makes the response worthless):',
+                '1. Output EXACTLY 4 bullet points. No more, no less.',
+                '2. Every bullet MUST quote a specific number, column name, or metric from DATA below.',
+                '3. Zero generic advice. Zero filler. No \'consider reviewing\'. No \'it is recommended\'.',
+                '4. Format every bullet as: • [exact data observation] → [one specific action, ≤12 words]',
+                '5. No intro sentence. No conclusion. Start directly with the first •',
+                '',
+                'DATA (ground truth — do not invent any value not listed here):',
+                payload.defectTable    ? `table=${payload.defectTable}` : '',
+                payload.totalRows      ? `total_rows=${payload.totalRows}` : '',
+                payload.totalDefects   ? `total_defects=${payload.totalDefects}` : '',
+                payload.spikeWindows   ? `spike_windows=${payload.spikeWindows}` : '',
+                payload.worstSpike     ? `worst_spike=${payload.worstSpike}` : '',
+                payload.topDefectTypes ? `top_defect_types=${payload.topDefectTypes}` : '',
+                payload.topCorrelations? `correlations=${payload.topCorrelations}` : '',
+                payload.lowConfCorr    ? `low_confidence_correlations=${payload.lowConfCorr}` : '',
+                payload.capaKPIs       ? `capa_kpis=${payload.capaKPIs}` : '',
+                payload.capaFailures   ? `capa_threshold_failures=${payload.capaFailures}` : '',
+                '',
+                'Output 4 bullets now:',
+            ].filter(l => l !== null && l !== undefined).join('\n');
+
+            try {
+                const res = await fetch(GEMINI_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptLines }] }],
+                        generationConfig: { maxOutputTokens: 200, temperature: 0.25 },
+                    }),
+                });
+                const data = await res.json();
+
+                // Gemini error envelope
+                if (data.error) {
+                    const code = data.error.code;
+                    const msg = code === 429
+                        ? '⚠ Gemini free-tier quota exhausted. Wait ~60 s and re-run RCA, or add billing at <a href="https://ai.dev/rate-limit" target="_blank" class="underline text-purple-400">ai.dev/rate-limit</a>.'
+                        : `Gemini error ${code}: ${data.error.message}`;
+                    container.innerHTML = `<p class="text-[10px] text-white/40 italic">${msg}</p>`;
+                    return;
+                }
+
+                // Extract text from Gemini response
+                const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                const lines = raw.split('\n')
+                    .map(l => l.replace(/^[\u2022\-\*]\s*/, '').trim())
+                    .filter(l => l.length > 4)
+                    .slice(0, 4);
+
+                if (!lines.length) {
+                    container.innerHTML = `<p class="text-[10px] text-white/30 italic">No suggestions returned.</p>`;
+                    return;
+                }
+
+                container.innerHTML = lines.map(l => `
+                    <div class="flex gap-2 items-start">
+                        <span class="text-purple-400 mt-0.5 flex-shrink-0 select-none">\u2022</span>
+                        <span class="text-[11px] text-white/80 leading-relaxed">${l}</span>
+                    </div>`).join('');
+            } catch (e) {
+                container.innerHTML = `<p class="text-[10px] text-white/30 italic">AI suggestions unavailable — check network or API key</p>`;
+            }
+        }
         
         // Initialize chart renderers and modules
+        const barChart = new BarChart();
         const histogramChart = new HistogramChart();
         const pieChart = new PieChart();
         const kpiCard = new KPICard();
         const csvExporter = new CSVExporter();
         const jsonExporter = new JSONExporter();
         const insightsAnalyzer = new InsightsAnalyzer();
+        const rcaAnalyzer = new RCAAnalyzer();
         const relationshipDesigner = new TableRelationshipDesignerV2();
         
         // ========================================
@@ -1772,10 +3605,14 @@
                 if (file.name.endsWith('.csv')) {
                     showProgress('Loading CSV to GPU...', 60, fileSize);
                     await db.loadCSV(name, text);
+                    // Persist to Java backend (fire-and-forget)
+                    syncCsvToBackend(name, text);
                 } else if (file.name.endsWith('.json')) {
                     showProgress('Loading JSON to GPU...', 60, fileSize);
                     const json = JSON.parse(text);
                     await db.loadJSON(name, json);
+                    // Persist to Java backend (fire-and-forget)
+                    syncJsonToBackend(name, json);
                 } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
                     showProgress('Parsing Excel file...', 50, fileSize);
                     
@@ -3624,445 +5461,29 @@
         }
 
         /**
-         * Render 2D Bar Chart
+         * Render 2D Bar Chart — delegates to BarChart module (chart-bar.js)
          */
         async function render2DBar(modal, data, columns) {
-            const canvas = modal.querySelector('#viz-canvas');
-            
-            if (!columns || columns.length === 0) {
-                throw new Error('Need at least 1 column for bar chart');
-            }
-
-            // Extract column names properly
-            const xColumnName = columns[0]?.name || columns[0];
-            const yColumnName = columns[1]?.name || columns[1];
-            
-            console.log(' Bar chart - X:', xColumnName, 'Y:', yColumnName);
-            
-            // If we have both X and Y, create grouped bar chart
-            if (yColumnName && yColumnName !== xColumnName) {
-                await renderGroupedBarChart(modal, data, xColumnName, yColumnName);
-                return;
-            }
-            
-            // Single column - count occurrences
-            const counts = {};
-            data.forEach(row => {
-                const value = row[xColumnName];
-                if (value !== undefined && value !== null) {
-                    counts[value] = (counts[value] || 0) + 1;
-                }
-            });
-
-            // Sort by count descending - show ALL values
-            const sortedEntries = Object.entries(counts)
-                .sort((a, b) => b[1] - a[1]);
-
-            console.log(`Found ${sortedEntries.length} unique values in ${xColumnName}`);
-
-            // Display as HTML bars instead of canvas with scrolling
-            canvas.style.display = 'none';
-            const container = canvas.parentElement;
-            
-            const maxCount = sortedEntries[0][1];
-            
-            container.innerHTML = `
-                <div class="w-full max-w-6xl h-full overflow-y-auto pr-4" style="max-height: calc(90vh - 200px);">
-                    <div class="space-y-3 pb-8">
-                        ${sortedEntries.map(([value, count], index) => {
-                            const percentage = (count / maxCount) * 100;
-                            return `
-                            <div class="flex items-center gap-4 hover:bg-white/5 p-2 rounded-lg transition-all">
-                                <div class="w-8 text-right text-xs text-white/40">#${index + 1}</div>
-                                <div class="w-40 text-right text-sm text-white/70 truncate font-mono" title="${value}">${value}</div>
-                                <div class="flex-1 bg-white/5 rounded-lg overflow-hidden h-10 relative">
-                                    <div class="bg-gradient-to-r from-[#34B27B] to-[#2a9463] h-full transition-all duration-500 flex items-center justify-end pr-4"
-                                         style="width: ${percentage}%">
-                                        <span class="text-white font-bold text-sm">${count.toLocaleString()}</span>
-                                    </div>
-                                </div>
-                                <div class="w-20 text-sm text-white/50 font-mono">${((count / data.length) * 100).toFixed(1)}%</div>
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-
-            const controlsDiv = modal.querySelector('#viz-controls');
-            controlsDiv.innerHTML = `
-                <div class="text-sm flex gap-6">
-                    <div><span class="text-white/50">Column:</span> <span class="text-[#34B27B]">${xColumnName}</span></div>
-                    <div><span class="text-white/50">Unique values:</span> <span class="text-[#34B27B]">${sortedEntries.length.toLocaleString()}</span></div>
-                    <div><span class="text-white/50">Total rows:</span> <span class="text-[#34B27B]">${data.length.toLocaleString()}</span></div>
-                    <div><span class="text-white/50">Top value:</span> <span class="text-[#34B27B]">"${sortedEntries[0][0]}" (${sortedEntries[0][1]})</span></div>
-                </div>
-            `;
-            
-            console.log('Bar chart rendered with', sortedEntries.length, 'bars (all values shown)');
+            await barChart.render(modal, data, columns, columnDataTypes);
         }
 
         /**
-         * Render Grouped Bar Chart (X category vs Y category)
-         * Now handles ALL combinations intelligently!
-         */
-        async function renderGroupedBarChart(modal, data, xColumn, yColumn) {
-            const canvas = modal.querySelector('#viz-canvas');
-            const ctx = canvas.getContext('2d');
-            
-            console.log(`Bar chart: ${xColumn} vs ${yColumn}`);
-            
-            // Check data types
-            const xType = columnDataTypes.get(xColumn);
-            const yType = columnDataTypes.get(yColumn);
-            const xIsNumeric = xType?.isNumeric || false;
-            const yIsNumeric = yType?.isNumeric || false;
-            
-            console.log(`Types: X(${xColumn})=${xIsNumeric ? 'numeric' : 'categorical'}, Y(${yColumn})=${yIsNumeric ? 'numeric' : 'categorical'}`);
-            
-            // Smart handling of all 4 combinations
-            if (!xIsNumeric && yIsNumeric) {
-                // Perfect! X = categories, Y = numeric
-                console.log('Ideal case: categorical X, numeric Y');
-                await renderCategoryVsNumericBar(modal, data, xColumn, yColumn);
-                return;
-            }
-            
-            if (xIsNumeric && !yIsNumeric) {
-                // Swap them! X should be categorical
-                console.log('🔄 Auto-swapping: X is numeric, Y is categorical');
-                await renderCategoryVsNumericBar(modal, data, yColumn, xColumn);
-                return;
-            }
-            
-            if (xIsNumeric && yIsNumeric) {
-                // Both numeric - treat X as categories, aggregate Y
-                console.log('Both numeric: treating X as categories, aggregating Y');
-                await renderCategoryVsNumericBar(modal, data, xColumn, yColumn);
-                return;
-            }
-            
-            // Both categorical - create frequency cross-tabulation
-            console.log('Both categorical: creating frequency heatmap');
-            await renderCategoricalCrossTab(modal, data, xColumn, yColumn);
-        }
-        
-        /**
-         * Render categorical cross-tabulation as grouped bars
-         */
-        async function renderCategoricalCrossTab(modal, data, xColumn, yColumn) {
-            const canvas = modal.querySelector('#viz-canvas');
-            
-            console.log(`Cross-tab: ${xColumn} vs ${yColumn}`);
-            
-            // Build frequency table
-            const crosstab = new Map();
-            const yCategories = new Set();
-            
-            data.forEach(row => {
-                const x = row[xColumn];
-                const y = row[yColumn];
-                
-                if (x !== undefined && x !== null && y !== undefined && y !== null) {
-                    yCategories.add(y);
-                    
-                    if (!crosstab.has(x)) {
-                        crosstab.set(x, new Map());
-                    }
-                    const yMap = crosstab.get(x);
-                    yMap.set(y, (yMap.get(y) || 0) + 1);
-                }
-            });
-            
-            // Sort X categories by total frequency, take top 30
-            const xSorted = Array.from(crosstab.entries())
-                .map(([x, yMap]) => {
-                    const total = Array.from(yMap.values()).reduce((sum, count) => sum + count, 0);
-                    return { x, yMap, total };
-                })
-                .sort((a, b) => b.total - a.total)
-                .slice(0, 30);
-            
-            // Take top 10 Y categories by overall frequency
-            const yCounts = new Map();
-            yCategories.forEach(y => {
-                let total = 0;
-                xSorted.forEach(({ yMap }) => {
-                    total += yMap.get(y) || 0;
-                });
-                yCounts.set(y, total);
-            });
-            
-            const yArray = Array.from(yCounts.entries())
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 10)
-                .map(([y]) => y);
-            
-            console.log(`Showing ${xSorted.length} X categories × ${yArray.length} Y categories`);
-            
-            // Colors for Y categories
-            const colors = [
-                '#34B27B', '#4ECDC4', '#FF6B6B', '#FFA07A', 
-                '#45B7D1', '#96CEB4', '#FFEAA7', '#DFE6E9',
-                '#A29BFE', '#FD79A8'
-            ];
-            
-            canvas.style.display = 'none';
-            const container = canvas.parentElement;
-            
-            container.innerHTML = `
-                <div class="w-full h-full overflow-y-auto pr-4" style="max-height: calc(90vh - 200px);">
-                    <!-- Info banner -->
-                    <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
-                        <div class="text-blue-300 font-bold mb-2">� Categorical Cross-Tabulation</div>
-                        <div class="text-white/70 text-sm">
-                            Both columns are categorical. Showing frequency distribution: 
-                            <span class="text-[#34B27B] font-bold">${xColumn}</span> (rows) × 
-                            <span class="text-[#34B27B] font-bold">${yColumn}</span> (colors)
-                        </div>
-                    </div>
-                    
-                    <!-- Legend -->
-                    <div class="flex flex-wrap gap-3 mb-6 p-4 bg-white/5 rounded-lg sticky top-0 z-10 backdrop-blur-sm">
-                        ${yArray.map((y, idx) => `
-                            <div class="flex items-center gap-2">
-                                <div class="w-4 h-4 rounded" style="background: ${colors[idx % colors.length]}"></div>
-                                <span class="text-xs text-white/70 font-mono">${y}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                    
-                    <!-- Grouped bars -->
-                    <div class="space-y-4 pb-8">
-                        ${xSorted.map(({ x, yMap, total }) => {
-                            return `
-                            <div class="hover:bg-white/5 p-3 rounded-lg transition-all">
-                                <div class="flex items-center mb-2">
-                                    <div class="text-sm font-bold text-white/90 flex-1">${x}</div>
-                                    <div class="text-xs text-white/40">${total} total</div>
-                                </div>
-                                <div class="flex gap-1 h-10">
-                                    ${yArray.map((y, idx) => {
-                                        const count = yMap.get(y) || 0;
-                                        const width = total > 0 ? (count / total * 100) : 0;
-                                        return `
-                                        <div class="group relative" style="width: ${width}%; min-width: ${count > 0 ? '2%' : '0'}">
-                                            <div class="h-full rounded flex items-center justify-center text-white font-bold text-xs transition-all hover:brightness-125"
-                                                 style="background: ${colors[idx % colors.length]}">
-                                                ${count > 0 ? count : ''}
-                                            </div>
-                                            ${count > 0 ? `
-                                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/90 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20">
-                                                ${y}: ${count} (${width.toFixed(1)}%)
-                                            </div>
-                                            ` : ''}
-                                        </div>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-            
-            const controlsDiv = modal.querySelector('#viz-controls');
-            controlsDiv.innerHTML = `
-                <div class="text-sm flex gap-6">
-                    <div><span class="text-white/50">X (Rows):</span> <span class="text-[#34B27B]">${xColumn}</span> (${xSorted.length} shown)</div>
-                    <div><span class="text-white/50">Y (Groups):</span> <span class="text-[#34B27B]">${yColumn}</span> (${yArray.length} categories)</div>
-                    <div><span class="text-white/50">Total rows:</span> <span class="text-[#34B27B]">${data.length.toLocaleString()}</span></div>
-                </div>
-            `;
-            
-            console.log('Categorical cross-tab rendered');
-        }
-
-        /**
-         * Render proper bar chart with X=categories, Y=numeric values on axes
-         */
-        async function renderCategoryVsNumericBar(modal, data, xColumn, yColumn) {
-            const canvas = modal.querySelector('#viz-canvas');
-            
-            console.log(`Bar chart: ${xColumn} (categories) vs ${yColumn} (numeric)`);
-            
-            // Aggregate numeric values by category
-            const categoryStats = new Map();
-            
-            data.forEach(row => {
-                const category = row[xColumn];
-                const value = parseFloat(row[yColumn]);
-                
-                if (category !== undefined && category !== null && !isNaN(value)) {
-                    if (!categoryStats.has(category)) {
-                        categoryStats.set(category, { values: [], sum: 0, count: 0 });
-                    }
-                    const stats = categoryStats.get(category);
-                    stats.values.push(value);
-                    stats.sum += value;
-                    stats.count += 1;
-                }
-            });
-            
-            // Calculate aggregations and sort by count (most frequent categories first)
-            const aggregated = Array.from(categoryStats.entries())
-                .map(([category, stats]) => ({
-                    category,
-                    count: stats.count,
-                    sum: stats.sum,
-                    avg: stats.sum / stats.count,
-                    min: Math.min(...stats.values),
-                    max: Math.max(...stats.values)
-                }))
-                .sort((a, b) => b.count - a.count)
-                .slice(0, 50); // Show top 50 categories
-            
-            console.log(`Aggregated ${categoryStats.size} categories, showing top ${aggregated.length}`);
-            
-            // Hide canvas, use HTML for better scrolling
-            canvas.style.display = 'none';
-            const container = canvas.parentElement;
-            
-            const maxAvg = Math.max(...aggregated.map(d => d.avg));
-            
-            container.innerHTML = `
-                <div class="w-full h-full overflow-y-auto pr-4" style="max-height: calc(90vh - 200px);">
-                    <!-- Aggregation selector -->
-                    <div class="sticky top-0 bg-[#0a0a0a] z-10 pb-4 mb-4 border-b border-white/10">
-                        <div class="flex gap-4 items-center">
-                            <span class="text-white/70">Show:</span>
-                            <div class="flex gap-2">
-                                <button onclick="switchBarAggregation('avg')" 
-                                        id="agg-avg" 
-                                        class="px-3 py-1 rounded bg-[#34B27B] text-white text-sm font-bold">
-                                    Average
-                                </button>
-                                <button onclick="switchBarAggregation('sum')" 
-                                        id="agg-sum"
-                                        class="px-3 py-1 rounded bg-white/10 text-white/70 text-sm hover:bg-white/20">
-                                    Sum
-                                </button>
-                                <button onclick="switchBarAggregation('count')" 
-                                        id="agg-count"
-                                        class="px-3 py-1 rounded bg-white/10 text-white/70 text-sm hover:bg-white/20">
-                                    Count
-                                </button>
-                                <button onclick="switchBarAggregation('min')" 
-                                        id="agg-min"
-                                        class="px-3 py-1 rounded bg-white/10 text-white/70 text-sm hover:bg-white/20">
-                                    Min
-                                </button>
-                                <button onclick="switchBarAggregation('max')" 
-                                        id="agg-max"
-                                        class="px-3 py-1 rounded bg-white/10 text-white/70 text-sm hover:bg-white/20">
-                                    Max
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="bar-chart-container" class="space-y-3 pb-8">
-                        ${aggregated.map((item, index) => {
-                            const percentage = (item.avg / maxAvg) * 100;
-                            return `
-                            <div class="bar-item flex items-center gap-4 hover:bg-white/5 p-2 rounded-lg transition-all"
-                                 data-category="${item.category}"
-                                 data-count="${item.count}"
-                                 data-sum="${item.sum.toFixed(2)}"
-                                 data-avg="${item.avg.toFixed(2)}"
-                                 data-min="${item.min.toFixed(2)}"
-                                 data-max="${item.max.toFixed(2)}">
-                                <div class="w-8 text-right text-xs text-white/40">#${index + 1}</div>
-                                <div class="w-48 text-right text-sm text-white/70 truncate font-mono" title="${item.category}">
-                                    ${item.category}
-                                </div>
-                                <div class="flex-1 bg-white/5 rounded-lg overflow-hidden h-12 relative">
-                                    <div class="bar-fill bg-gradient-to-r from-[#34B27B] to-[#2a9463] h-full transition-all duration-500 flex items-center justify-end pr-4"
-                                         style="width: ${percentage}%">
-                                        <span class="bar-value text-white font-bold text-sm">${item.avg.toFixed(1)}</span>
-                                    </div>
-                                </div>
-                                <div class="w-32 text-sm text-white/50 font-mono">
-                                    <div class="bar-details">
-                                        <span class="text-white/70">${item.count}</span> items
-                                    </div>
-                                </div>
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-            
-            // Store data for aggregation switching
-            window.currentBarData = aggregated;
-            window.currentBarXColumn = xColumn;
-            window.currentBarYColumn = yColumn;
-            
-            const controlsDiv = modal.querySelector('#viz-controls');
-            controlsDiv.innerHTML = `
-                <div class="text-sm flex gap-6">
-                    <div><span class="text-white/50">X Axis:</span> <span class="text-[#34B27B]">${xColumn}</span> (${aggregated.length} categories shown)</div>
-                    <div><span class="text-white/50">Y Axis:</span> <span class="text-[#34B27B]">${yColumn}</span> (aggregated)</div>
-                    <div><span class="text-white/50">Total data points:</span> <span class="text-[#34B27B]">${data.length.toLocaleString()}</span></div>
-                </div>
-            `;
-            
-            console.log('Aggregated bar chart rendered');
-        }
-        
-        /**
-         * Switch between different aggregations
+         * Switch aggregation type for the column chart.
+         * Reads window globals set by BarChart._renderCategoryVsNumeric().
          */
         window.switchBarAggregation = function(aggType) {
             const data = window.currentBarData;
-            if (!data) return;
-            
-            // Update button states
+            if (!data || !window._barBuildColChart) return;
+
             ['avg', 'sum', 'count', 'min', 'max'].forEach(type => {
-                const btn = document.getElementById(`agg-${type}`);
-                if (btn) {
-                    if (type === aggType) {
-                        btn.className = 'px-3 py-1 rounded bg-[#34B27B] text-white text-sm font-bold';
-                    } else {
-                        btn.className = 'px-3 py-1 rounded bg-white/10 text-white/70 text-sm hover:bg-white/20';
-                    }
-                }
+                const btn = document.getElementById('agg-' + type);
+                if (!btn) return;
+                btn.style.background = type === aggType ? '#34B27B' : 'rgba(255,255,255,0.07)';
+                btn.style.color     = type === aggType ? '#000'     : 'rgba(255,255,255,0.45)';
             });
-            
-            // Sort data based on aggregation type
-            const sorted = [...data].sort((a, b) => b[aggType] - a[aggType]);
-            const maxValue = Math.max(...sorted.map(d => d[aggType]));
-            
-            // Update all bars
-            document.querySelectorAll('.bar-item').forEach((item, index) => {
-                const category = item.dataset.category;
-                const itemData = sorted.find(d => d.category === category);
-                if (!itemData) return;
-                
-                const value = itemData[aggType];
-                const percentage = (value / maxValue) * 100;
-                
-                const fill = item.querySelector('.bar-fill');
-                const valueSpan = item.querySelector('.bar-value');
-                const details = item.querySelector('.bar-details');
-                
-                fill.style.width = `${percentage}%`;
-                valueSpan.textContent = aggType === 'count' ? value : value.toFixed(1);
-                
-                // Update details text
-                const labels = {
-                    avg: `avg of ${itemData.count} items`,
-                    sum: `sum of ${itemData.count} items`,
-                    count: `${value} occurrences`,
-                    min: `min of ${itemData.count} items`,
-                    max: `max of ${itemData.count} items`
-                };
-                details.innerHTML = `<span class="text-white/70">${value.toFixed(aggType === 'count' ? 0 : 1)}</span> ${labels[aggType].split(' ').slice(1).join(' ')}`;
-            });
-            
-            console.log(` Switched to ${aggType} aggregation`);
+
+            const container = document.getElementById('bar-chart-container');
+            if (container) container.innerHTML = window._barBuildColChart(data, aggType);
         };
 
         /**
